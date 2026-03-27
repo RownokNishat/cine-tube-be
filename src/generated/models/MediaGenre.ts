@@ -137,7 +137,7 @@ export type MediaGenreGroupByOutputType = {
   _max: MediaGenreMaxAggregateOutputType | null
 }
 
-type GetMediaGenreGroupByPayload<T extends MediaGenreGroupByArgs> = Prisma.PrismaPromise<
+export type GetMediaGenreGroupByPayload<T extends MediaGenreGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<MediaGenreGroupByOutputType, T['by']> &
       {
@@ -1126,6 +1126,11 @@ export type MediaGenreFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Skip the first `n` MediaGenres.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of MediaGenres.
+   */
   distinct?: Prisma.MediaGenreScalarFieldEnum | Prisma.MediaGenreScalarFieldEnum[]
 }
 

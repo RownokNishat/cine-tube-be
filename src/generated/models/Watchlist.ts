@@ -151,7 +151,7 @@ export type WatchlistGroupByOutputType = {
   _max: WatchlistMaxAggregateOutputType | null
 }
 
-type GetWatchlistGroupByPayload<T extends WatchlistGroupByArgs> = Prisma.PrismaPromise<
+export type GetWatchlistGroupByPayload<T extends WatchlistGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<WatchlistGroupByOutputType, T['by']> &
       {
@@ -1207,6 +1207,11 @@ export type WatchlistFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Skip the first `n` Watchlists.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Watchlists.
+   */
   distinct?: Prisma.WatchlistScalarFieldEnum | Prisma.WatchlistScalarFieldEnum[]
 }
 

@@ -151,7 +151,7 @@ export type CommentLikeGroupByOutputType = {
   _max: CommentLikeMaxAggregateOutputType | null
 }
 
-type GetCommentLikeGroupByPayload<T extends CommentLikeGroupByArgs> = Prisma.PrismaPromise<
+export type GetCommentLikeGroupByPayload<T extends CommentLikeGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<CommentLikeGroupByOutputType, T['by']> &
       {
@@ -1207,6 +1207,11 @@ export type CommentLikeFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` CommentLikes.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of CommentLikes.
+   */
   distinct?: Prisma.CommentLikeScalarFieldEnum | Prisma.CommentLikeScalarFieldEnum[]
 }
 

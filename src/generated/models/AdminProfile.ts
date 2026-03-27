@@ -151,7 +151,7 @@ export type AdminProfileGroupByOutputType = {
   _max: AdminProfileMaxAggregateOutputType | null
 }
 
-type GetAdminProfileGroupByPayload<T extends AdminProfileGroupByArgs> = Prisma.PrismaPromise<
+export type GetAdminProfileGroupByPayload<T extends AdminProfileGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AdminProfileGroupByOutputType, T['by']> &
       {
@@ -1040,6 +1040,11 @@ export type AdminProfileFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` AdminProfiles.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of AdminProfiles.
+   */
   distinct?: Prisma.AdminProfileScalarFieldEnum | Prisma.AdminProfileScalarFieldEnum[]
 }
 
