@@ -1,30 +1,88 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// CineTube - Movie and Series Rating & Streaming Portal
+// Prisma Schema
 
 generator client {
   provider = "prisma-client"
-  // output   = "../generated/prisma"
   output   = "../src/generated"
-  // moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+// ========== ENUMS ==========
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum MediaType {
+  MOVIE
+  SERIES
+}
+
+enum MediaStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum PricingType {
+  FREE
+  PREMIUM
+}
+
+enum ReviewStatus {
+  PENDING
+  PUBLISHED
+  UNPUBLISHED
+}
+
+enum SubscriptionPlan {
+  FREE
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+// ========== BETTER-AUTH REQUIRED MODELS ==========
+
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id                 String     @id
+  name               String
+  email              String
+  emailVerified      Boolean    @default(false)
+  role               Role       @default(USER)
+  status             UserStatus @default(ACTIVE)
+  needPasswordChange Boolean    @default(false)
+  isDeleted          Boolean    @default(false)
+  deletedAt          DateTime?
+  image              String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  sessions       Session[]
+  accounts       Account[]
+  profile        UserProfile?
+  adminProfile   AdminProfile?
+  reviews        Review[]
+  reviewLikes    ReviewLike[]
+  comments       ReviewComment[]
+  commentLikes   CommentLike[]
+  watchlist      Watchlist[]
+  subscriptions  Subscription[]
 
   @@unique([email])
   @@map("user")
@@ -76,4 +134,175 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// ========== USER PROFILES ==========
+
+model UserProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_profile")
+}
+
+model AdminProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_profile")
+}
+
+// ========== MEDIA LIBRARY ==========
+
+model Genre {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  mediaGenres MediaGenre[]
+
+  @@map("genre")
+}
+
+model Media {
+  id                String      @id @default(uuid())
+  title             String
+  synopsis          String      @db.Text
+  releaseYear       Int
+  director          String
+  cast              String[]
+  streamingPlatform String[]
+  pricingType       PricingType @default(FREE)
+  streamingLink     String?
+  posterUrl         String?
+  trailerUrl        String?
+  mediaType         MediaType   @default(MOVIE)
+  status            MediaStatus @default(DRAFT)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  genres           MediaGenre[]
+  reviews          Review[]
+  watchlistEntries Watchlist[]
+
+  @@map("media")
+}
+
+model MediaGenre {
+  mediaId String
+  genreId String
+  media   Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([mediaId, genreId])
+  @@map("media_genre")
+}
+
+// ========== REVIEW SYSTEM ==========
+
+model Review {
+  id        String       @id @default(uuid())
+  userId    String
+  mediaId   String
+  rating    Int
+  content   String       @db.Text
+  isSpoiler Boolean      @default(false)
+  tags      String[]
+  status    ReviewStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media    Media           @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  likes    ReviewLike[]
+  comments ReviewComment[]
+
+  @@unique([userId, mediaId])
+  @@map("review")
+}
+
+model ReviewLike {
+  id        String   @id @default(uuid())
+  userId    String
+  reviewId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reviewId])
+  @@map("review_like")
+}
+
+model ReviewComment {
+  id        String   @id @default(uuid())
+  userId    String
+  reviewId  String
+  content   String
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review  Review          @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  parent  ReviewComment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies ReviewComment[] @relation("CommentReplies")
+  likes   CommentLike[]
+
+  @@map("review_comment")
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+  userId    String
+  commentId String
+  createdAt DateTime @default(now())
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment ReviewComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@map("comment_like")
+}
+
+// ========== WATCHLIST ==========
+
+model Watchlist {
+  id        String   @id @default(uuid())
+  userId    String
+  mediaId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaId])
+  @@map("watchlist")
+}
+
+// ========== SUBSCRIPTIONS ==========
+
+model Subscription {
+  id               String             @id @default(uuid())
+  userId           String
+  plan             SubscriptionPlan   @default(FREE)
+  status           SubscriptionStatus @default(ACTIVE)
+  startDate        DateTime           @default(now())
+  endDate          DateTime?
+  stripeCustomerId String?
+  stripePaymentId  String?
+  amount           Float?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscription")
 }
