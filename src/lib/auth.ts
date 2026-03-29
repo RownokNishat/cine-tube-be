@@ -88,23 +88,23 @@ export const auth = betterAuth({
                     }
 
                     if (user && !user.emailVerified) {
-                        sendEmail({
+                        await sendEmail({
                             to: email,
                             subject: "Verify your CineTube account",
                             templateName: "otp",
                             templateData: { name: user.name, otp },
-                        });
+                        }).catch((err) => console.error("Failed to send verification email:", err));
                     }
                 } else if (type === "forget-password") {
                     const user = await prisma.user.findUnique({ where: { email } });
 
                     if (user) {
-                        sendEmail({
+                        await sendEmail({
                             to: email,
                             subject: "CineTube - Password Reset OTP",
                             templateName: "otp",
                             templateData: { name: user.name, otp },
-                        });
+                        }).catch((err) => console.error("Failed to send password reset email:", err));
                     }
                 }
             },

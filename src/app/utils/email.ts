@@ -2,7 +2,6 @@ import ejs from "ejs";
 import status from "http-status";
 import nodemailer from "nodemailer";
 import path from "path";
-import { fileURLToPath } from "url";
 import { envVars } from "../config/env.js";
 import AppError from "../errorHelpers/AppError.js";
 
@@ -30,10 +29,7 @@ interface SendEmailOptions {
 
 export const sendEmail = async ({ subject, templateData, templateName, to, attachments }: SendEmailOptions) => {
     try {
-        const bundleDir = path.dirname(fileURLToPath(import.meta.url));
-        const templatePath = envVars.NODE_ENV === 'production'
-            ? path.resolve(bundleDir, 'templates', `${templateName}.ejs`)
-            : path.resolve(process.cwd(), `src/app/templates/${templateName}.ejs`);
+        const templatePath = path.resolve(process.cwd(), `src/app/templates/${templateName}.ejs`);
 
         const html = await ejs.renderFile(templatePath, templateData);
 
