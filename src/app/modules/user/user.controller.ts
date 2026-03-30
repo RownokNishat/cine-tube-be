@@ -42,9 +42,33 @@ const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getMe = catchAsync(async (req: Request, res: Response) => {
+    const result = await UserService.getMe(req.user.userId);
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "User profile fetched successfully",
+        data: result,
+    });
+});
+
+const updateMe = catchAsync(async (req: Request, res: Response) => {
+    const payload = req.body as { name: string; image?: string | null };
+    const result = await UserService.updateMe(req.user.userId, payload);
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "Profile updated successfully",
+        data: result,
+    });
+});
+
 export const UserController = {
     createAdmin,
     getAllUsers,
     updateUserStatus,
+    getMe,
+    updateMe,
+};
 };
 

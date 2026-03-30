@@ -6,3 +6,8 @@ export const createAdminZodSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters").max(50, "Name must be at most 50 characters"),
     role: z.enum(["ADMIN", "SUPER_ADMIN"], { error: "Role must be ADMIN or SUPER_ADMIN" }),
 });
+
+export const updateMeZodSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters").max(100),
+    image: z.string().url("Image must be a valid URL").nullable().optional(),
+});

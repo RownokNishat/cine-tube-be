@@ -81,8 +81,63 @@ const updateUserStatus = async (userId: string, newStatus: string) => {
     });
 };
 
+const getMe = async (userId: string) => {
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            status: true,
+            emailVerified: true,
+            needPasswordChange: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    return user;
+};
+
+const updateMe = async (userId: string, payload: { name: string; image?: string | null }) => {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    const updated = await prisma.user.update({
+        where: { id: userId },
+        data: {
+            name: payload.name,
+            ...(payload.image !== undefined && { image: payload.image }),
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            status: true,
+            emailVerified: true,
+            needPasswordChange: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+
+    return updated;
+};
+
 export const UserService = {
     createAdmin,
     getAllUsers,
     updateUserStatus,
+    getMe,
+    updateMe,
 };
