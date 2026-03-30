@@ -61,22 +61,38 @@ const createReview = async (userId: string, mediaId: string, payload: ICreateRev
     return review;
 };
 
-const getMediaReviews = async (mediaId: string, queryParams: IQueryParams) => {
+const getMediaReviews = async (
+    mediaId: string,
+    queryParams: IQueryParams,
+    options?: { allowStatusFilter?: boolean },
+) => {
     const media = await prisma.media.findUnique({ where: { id: mediaId } });
     if (!media) {
         throw new AppError(httpStatus.NOT_FOUND, "Media not found");
     }
 
-    const baseWhere = { mediaId, status: ReviewStatus.PUBLISHED };
+    const allowStatusFilter = options?.allowStatusFilter === true;
+    const requestedStatus = typeof queryParams.status === "string" ? queryParams.status.toUpperCase() : undefined;
+    const normalizedStatus =
+        requestedStatus === ReviewStatus.PENDING ||
+        requestedStatus === ReviewStatus.PUBLISHED ||
+        requestedStatus === ReviewStatus.UNPUBLISHED
+            ? requestedStatus
+            : undefined;
+
+    const baseWhere = allowStatusFilter
+        ? { mediaId }
+        : { mediaId, status: ReviewStatus.PUBLISHED };
 
     const builder = new QueryBuilder(prisma.review, queryParams, {
         searchableFields: ["content"],
-        filterableFields: ["rating", "isSpoiler"],
+        filterableFields: ["rating", "isSpoiler", ...(allowStatusFilter ? ["status"] : [])],
     });
 
     const result = await builder
         .search()
         .filter()
+        .where(allowStatusFilter && normalizedStatus ? { status: normalizedStatus } : {})
         .where(baseWhere)
         .sort()
         .paginate()
@@ -497,7 +513,17 @@ const getMediaStats = async (mediaId: string) => {
 
     const pendingReviews = await prisma.review.findMany({
         where: { mediaId, status: ReviewStatus.PENDING },
-        select: { id: true, user: { select: { name: true } }, createdAt: true },
+        orderBy: { createdAt: "desc" },
+        select: {
+            id: true,
+            rating: true,
+            content: true,
+            isSpoiler: true,
+            tags: true,
+            status: true,
+            createdAt: true,
+            user: { select: { id: true, name: true, image: true } },
+        },
     });
 
     return {

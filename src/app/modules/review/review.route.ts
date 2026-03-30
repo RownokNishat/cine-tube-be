@@ -17,6 +17,13 @@ const router = Router();
 // GET /api/v1/reviews/media/:mediaId - list all published reviews for a media
 router.get("/media/:mediaId", ReviewController.getMediaReviews);
 
+// GET /api/v1/reviews/admin/media/:mediaId - admin review list with status filtering
+router.get(
+    "/admin/media/:mediaId",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    ReviewController.getMediaReviewsForAdmin,
+);
+
 // POST /api/v1/reviews/media/:mediaId - create a review
 router.post(
     "/media/:mediaId",
@@ -127,6 +134,13 @@ router.patch(
     "/:reviewId/unpublish",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     ReviewController.unpublishReview,
+);
+
+// PATCH /api/v1/reviews/:reviewId/reject - reject pending review (alias to unpublish)
+router.patch(
+    "/:reviewId/reject",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    ReviewController.rejectReview,
 );
 
 // DELETE /api/v1/reviews/:reviewId/admin - admin delete review (inappropriate content)

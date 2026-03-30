@@ -42,6 +42,23 @@ const getMediaReviews = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getMediaReviewsForAdmin = catchAsync(async (req: Request, res: Response) => {
+    const mediaId = req.params.mediaId as string;
+
+    const result = await ReviewService.getMediaReviews(
+        mediaId,
+        req.query as unknown as IQueryParams,
+        { allowStatusFilter: true },
+    );
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Admin reviews fetched successfully",
+        data: result.data,
+        meta: result.meta,
+    });
+});
+
 const getReviewById = catchAsync(async (req: Request, res: Response) => {
     const reviewId = req.params.reviewId as string;
 
@@ -235,6 +252,18 @@ const unpublishReview = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const rejectReview = catchAsync(async (req: Request, res: Response) => {
+    const reviewId = req.params.reviewId as string;
+
+    const result = await ReviewService.unpublishReview(reviewId);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Review rejected",
+        data: result,
+    });
+});
+
 const deleteReviewAsAdmin = catchAsync(async (req: Request, res: Response) => {
     const reviewId = req.params.reviewId as string;
 
@@ -272,6 +301,7 @@ const getMediaStats = catchAsync(async (req: Request, res: Response) => {
 export const ReviewController = {
     createReview,
     getMediaReviews,
+    getMediaReviewsForAdmin,
     getReviewById,
     updateReview,
     deleteReview,
@@ -287,6 +317,7 @@ export const ReviewController = {
     // Admin actions
     approveReview,
     unpublishReview,
+    rejectReview,
     deleteReviewAsAdmin,
     deleteCommentAsAdmin,
     getMediaStats,
