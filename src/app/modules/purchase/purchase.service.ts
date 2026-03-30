@@ -119,6 +119,24 @@ const handleWebhookEvent = async (event: Stripe.Event) => {
 };
 
 const checkAccessBySession = async (sessionId: string) => {
+    // First eagerly verify with Stripe so we don't depend on webhook timing
+    try {
+        const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+
+        if (stripeSession.payment_status === "paid") {
+            // Proactively complete the purchase in DB — idempotent if webhook already did it
+            await prisma.purchase.updateMany({
+                where: { stripeSessionId: sessionId, status: { not: "COMPLETED" } },
+                data: {
+                    status: "COMPLETED",
+                    stripePaymentId: stripeSession.payment_intent as string | null,
+                },
+            });
+        }
+    } catch {
+        // If Stripe call fails, fall through to DB check
+    }
+
     const purchase = await prisma.purchase.findUnique({
         where: { stripeSessionId: sessionId },
         include: {
