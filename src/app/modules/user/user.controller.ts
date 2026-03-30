@@ -70,5 +70,4 @@ export const UserController = {
     getMe,
     updateMe,
 };
-};
 
