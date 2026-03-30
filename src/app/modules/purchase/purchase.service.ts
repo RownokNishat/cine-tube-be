@@ -49,9 +49,10 @@ const createCheckoutSession = async (userId: string, mediaId: string) => {
         metadata: { userId, mediaId },
     });
 
-    // Upsert a PENDING purchase record (handles retry if user starts checkout again)
+    // Upsert using userId_mediaId so re-checkout attempts after abandonment are handled
+    // cleanly — this updates the existing PENDING record with the new session ID
     await prisma.purchase.upsert({
-        where: { stripeSessionId: session.id },
+        where: { userId_mediaId: { userId, mediaId } },
         create: {
             userId,
             mediaId,
@@ -60,10 +61,14 @@ const createCheckoutSession = async (userId: string, mediaId: string) => {
             currency: "usd",
             status: "PENDING",
         },
-        update: {},
+        update: {
+            stripeSessionId: session.id,
+            status: "PENDING",
+            stripePaymentId: null,
+        },
     });
 
-    return { checkoutUrl: session.url };
+    return { checkoutUrl: session.url, sessionId: session.id };
 };
 
 const getMyPurchases = async (userId: string) => {

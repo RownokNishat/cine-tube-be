@@ -36,18 +36,23 @@ const addToWatchlist = async (userId: string, mediaId: string) => {
     };
 };
 
-const removeFromWatchlist = async (userId: string, mediaId: string) => {
-    const existing = await prisma.watchlist.findUnique({
-        where: { userId_mediaId: { userId, mediaId } },
+const removeFromWatchlist = async (userId: string, idParam: string) => {
+    // Accept either the media's id OR the watchlist entry's own id
+    let existing = await prisma.watchlist.findUnique({
+        where: { userId_mediaId: { userId, mediaId: idParam } },
     });
+
+    if (!existing) {
+        existing = await prisma.watchlist.findFirst({
+            where: { id: idParam, userId },
+        });
+    }
 
     if (!existing) {
         throw new AppError(httpStatus.NOT_FOUND, "Media not found in watchlist");
     }
 
-    await prisma.watchlist.delete({
-        where: { userId_mediaId: { userId, mediaId } },
-    });
+    await prisma.watchlist.delete({ where: { id: existing.id } });
 };
 
 const getMyWatchlist = async (userId: string) => {
