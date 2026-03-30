@@ -119,25 +119,14 @@ const handleWebhookEvent = async (event: Stripe.Event) => {
 };
 
 const checkAccessBySession = async (sessionId: string) => {
-    // First eagerly verify with Stripe so we don't depend on webhook timing
-    try {
-        const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log(`[Purchase] Verifying session: ${sessionId}`);
 
-        if (stripeSession.payment_status === "paid") {
-            // Proactively complete the purchase in DB — idempotent if webhook already did it
-            await prisma.purchase.updateMany({
-                where: { stripeSessionId: sessionId, status: { not: "COMPLETED" } },
-                data: {
-                    status: "COMPLETED",
-                    stripePaymentId: stripeSession.payment_intent as string | null,
-                },
-            });
-        }
-    } catch {
-        // If Stripe call fails, fall through to DB check
+    if (!sessionId || typeof sessionId !== "string" || sessionId.trim() === "") {
+        return { hasAccess: false, purchase: null, debug: "Invalid sessionId" };
     }
 
-    const purchase = await prisma.purchase.findUnique({
+    // First check DB for existing purchase
+    let purchase = await prisma.purchase.findUnique({
         where: { stripeSessionId: sessionId },
         include: {
             media: {
@@ -145,6 +134,45 @@ const checkAccessBySession = async (sessionId: string) => {
             },
         },
     });
+
+    console.log(`[Purchase] DB result: ${purchase ? `Found (status: ${purchase.status})` : "Not found"}`);
+
+    // If not in DB or still pending, verify with Stripe
+    if (!purchase || purchase.status !== "COMPLETED") {
+        try {
+            const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+            console.log(`[Purchase] Stripe session retrieved. Payment status: ${stripeSession.payment_status}`);
+
+            if (stripeSession.payment_status === "paid") {
+                // Proactively complete the purchase in DB
+                const updated = await prisma.purchase.updateMany({
+                    where: { stripeSessionId: sessionId, status: { not: "COMPLETED" } },
+                    data: {
+                        status: "COMPLETED",
+                        stripePaymentId: stripeSession.payment_intent as string | null,
+                    },
+                });
+
+                console.log(`[Purchase] Marked as COMPLETED. Updated ${updated.count} record(s).`);
+
+                // Fetch the updated record
+                purchase = await prisma.purchase.findUnique({
+                    where: { stripeSessionId: sessionId },
+                    include: {
+                        media: {
+                            include: { genres: { include: { genre: true } } },
+                        },
+                    },
+                });
+            } else {
+                console.log(`[Purchase] Stripe payment_status not 'paid': ${stripeSession.payment_status}`);
+            }
+        } catch (error: unknown) {
+            const msg = error instanceof Error ? error.message : String(error);
+            console.error(`[Purchase] Stripe API error: ${msg}`);
+            // Fall through — let DB check result speak
+        }
+    }
 
     if (!purchase || purchase.status !== "COMPLETED") {
         return { hasAccess: false, purchase: null };
@@ -160,7 +188,7 @@ const checkAccessBySession = async (sessionId: string) => {
             },
         },
     };
-};
+};;
 
 export const PurchaseService = {
     createCheckoutSession,

@@ -44,13 +44,19 @@ const verifyPaymentSuccess = catchAsync(async (req: Request, res: Response) => {
         throw new AppError(httpStatus.BAD_REQUEST, "sessionId query param is required");
     }
 
-    const result = await PurchaseService.checkAccessBySession(sessionId);
-    sendResponse(res, {
-        httpStatusCode: httpStatus.OK,
-        success: true,
-        message: result.hasAccess ? "Payment verified" : "Payment not completed",
-        data: result,
-    });
+    try {
+        const result = await PurchaseService.checkAccessBySession(sessionId);
+        sendResponse(res, {
+            httpStatusCode: httpStatus.OK,
+            success: true,
+            message: result.hasAccess ? "Payment verified" : "Payment not completed yet",
+            data: result,
+        });
+    } catch (error) {
+        const msg = error instanceof Error ? error.message : "Unknown error";
+        console.error(`[Verify] Error: ${msg}`);
+        throw error;
+    }
 });
 
 // Raw body handler — must be called BEFORE express.json() in app.ts
