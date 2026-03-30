@@ -7,9 +7,15 @@ const router = Router();
 
 // All watchlist routes require authentication
 router.get("/", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), WatchlistController.getMyWatchlist);
+
+// Clear BEFORE delete /:id to prevent route collision
 router.delete("/clear", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), WatchlistController.clearWatchlist);
+
+// Check status BEFORE generic :mediaId delete
+router.get("/:mediaId/status", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), WatchlistController.checkWatchlistStatus);
+
+// Add and remove (generic)
 router.post("/:mediaId", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), WatchlistController.addToWatchlist);
 router.delete("/:mediaId", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), WatchlistController.removeFromWatchlist);
-router.get("/:mediaId/status", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), WatchlistController.checkWatchlistStatus);
 
 export const WatchlistRoutes = router;
