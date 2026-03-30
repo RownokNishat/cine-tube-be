@@ -3,6 +3,10 @@ import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
 
 const addToWatchlist = async (userId: string, mediaId: string) => {
+    if (!mediaId) {
+        throw new AppError(httpStatus.BAD_REQUEST, "mediaId is required");
+    }
+
     const media = await prisma.media.findUnique({ where: { id: mediaId } });
     if (!media) {
         throw new AppError(httpStatus.NOT_FOUND, "Media not found");
@@ -37,6 +41,10 @@ const addToWatchlist = async (userId: string, mediaId: string) => {
 };
 
 const removeFromWatchlist = async (userId: string, idParam: string) => {
+    if (!idParam) {
+        throw new AppError(httpStatus.BAD_REQUEST, "mediaId or watchlist item id is required");
+    }
+
     // Accept either the media's id OR the watchlist entry's own id
     let existing = await prisma.watchlist.findUnique({
         where: { userId_mediaId: { userId, mediaId: idParam } },
@@ -79,6 +87,10 @@ const getMyWatchlist = async (userId: string) => {
 };
 
 const checkWatchlistStatus = async (userId: string, mediaId: string) => {
+    if (!mediaId) {
+        throw new AppError(httpStatus.BAD_REQUEST, "mediaId is required");
+    }
+
     const existing = await prisma.watchlist.findUnique({
         where: { userId_mediaId: { userId, mediaId } },
     });
