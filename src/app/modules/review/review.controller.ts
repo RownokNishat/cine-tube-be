@@ -108,11 +108,12 @@ const likeReview = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.userId;
     const reviewId = req.params.reviewId as string;
 
-    await ReviewService.likeReview(userId, reviewId);
+    const result = await ReviewService.likeReview(userId, reviewId);
     sendResponse(res, {
         httpStatusCode: httpStatus.CREATED,
         success: true,
-        message: "Review liked successfully",
+        message: "Review liked",
+        data: result,
     });
 });
 
@@ -120,11 +121,12 @@ const unlikeReview = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.userId;
     const reviewId = req.params.reviewId as string;
 
-    await ReviewService.unlikeReview(userId, reviewId);
+    const result = await ReviewService.unlikeReview(userId, reviewId);
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
-        message: "Review unliked successfully",
+        message: "Review unliked",
+        data: result,
     });
 });
 
@@ -206,11 +208,12 @@ const likeComment = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.userId;
     const commentId = req.params.commentId as string;
 
-    await ReviewService.likeComment(userId, commentId);
+    const result = await ReviewService.likeComment(userId, commentId);
     sendResponse(res, {
         httpStatusCode: httpStatus.CREATED,
         success: true,
-        message: "Comment liked successfully",
+        message: "Comment liked",
+        data: result,
     });
 });
 
@@ -218,11 +221,12 @@ const unlikeComment = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.userId;
     const commentId = req.params.commentId as string;
 
-    await ReviewService.unlikeComment(userId, commentId);
+    const result = await ReviewService.unlikeComment(userId, commentId);
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
-        message: "Comment unliked successfully",
+        message: "Comment unliked",
+        data: result,
     });
 });
 

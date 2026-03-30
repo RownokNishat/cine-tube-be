@@ -199,6 +199,8 @@ const likeReview = async (userId: string, reviewId: string) => {
     await prisma.reviewLike.create({
         data: { userId, reviewId },
     });
+
+    return { liked: true };
 };
 
 const unlikeReview = async (userId: string, reviewId: string) => {
@@ -212,6 +214,8 @@ const unlikeReview = async (userId: string, reviewId: string) => {
     await prisma.reviewLike.delete({
         where: { userId_reviewId: { userId, reviewId } },
     });
+
+    return { liked: false };
 };
 
 // ==================== REVIEW COMMENTS ====================
@@ -262,20 +266,21 @@ const getReviewComments = async (reviewId: string, queryParams: IQueryParams) =>
         .paginate()
         .include({
             user: {
-                select: { id: true, name: true, email: true, image: true },
+                select: { id: true, name: true, image: true },
             },
             replies: {
+                orderBy: { createdAt: "asc" },
                 include: {
                     user: {
-                        select: { id: true, name: true, email: true, image: true },
+                        select: { id: true, name: true, image: true },
                     },
                     _count: {
-                        select: { likes: true },
+                        select: { likes: true, replies: true },
                     },
                 },
             },
             _count: {
-                select: { likes: true },
+                select: { likes: true, replies: true },
             },
         })
         .execute();
@@ -384,6 +389,8 @@ const likeComment = async (userId: string, commentId: string) => {
     await prisma.commentLike.create({
         data: { userId, commentId },
     });
+
+    return { liked: true };
 };
 
 const unlikeComment = async (userId: string, commentId: string) => {
@@ -397,6 +404,8 @@ const unlikeComment = async (userId: string, commentId: string) => {
     await prisma.commentLike.delete({
         where: { userId_commentId: { userId, commentId } },
     });
+
+    return { liked: false };
 };
 
 // ==================== ADMIN ACTIONS ====================
