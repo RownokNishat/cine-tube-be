@@ -57,6 +57,13 @@ enum SubscriptionStatus {
   CANCELLED
 }
 
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
 // ========== BETTER-AUTH REQUIRED MODELS ==========
 
 model User {
@@ -83,6 +90,7 @@ model User {
   commentLikes   CommentLike[]
   watchlist      Watchlist[]
   subscriptions  Subscription[]
+  purchases      Purchase[]
 
   @@unique([email])
   @@map("user")
@@ -180,6 +188,7 @@ model Media {
   cast              String[]
   streamingPlatform String[]
   pricingType       PricingType @default(FREE)
+  price             Float?      @default(9.99)
   streamingLink     String?
   posterUrl         String?
   trailerUrl        String?
@@ -191,6 +200,7 @@ model Media {
   genres           MediaGenre[]
   reviews          Review[]
   watchlistEntries Watchlist[]
+  purchases        Purchase[]
 
   @@map("media")
 }
@@ -285,6 +295,27 @@ model Watchlist {
 
   @@unique([userId, mediaId])
   @@map("watchlist")
+}
+
+// ========== PURCHASES ==========
+
+model Purchase {
+  id              String         @id @default(uuid())
+  userId          String
+  mediaId         String
+  stripeSessionId String         @unique
+  stripePaymentId String?
+  amount          Float
+  currency        String         @default("usd")
+  status          PurchaseStatus @default(PENDING)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaId])
+  @@map("purchase")
 }
 
 // ========== SUBSCRIPTIONS ==========

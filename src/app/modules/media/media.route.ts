@@ -29,4 +29,11 @@ router.delete(
     MediaController.deleteMedia,
 );
 
+// GET /api/v1/media/:id/access — check if authenticated user can access this media
+router.get(
+    "/:id/access",
+    checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN),
+    MediaController.checkAccess,
+);
+
 export const MediaRoutes = router;

@@ -543,14 +543,6 @@ export type EnumSubscriptionStatusFieldUpdateOperationsInput = {
   set?: $Enums.SubscriptionStatus
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type SubscriptionCreateWithoutUserInput = {
   id?: string
   plan?: $Enums.SubscriptionPlan

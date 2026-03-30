@@ -199,10 +199,34 @@ const deleteMedia = async (id: string) => {
     await prisma.media.delete({ where: { id } });
 };
 
+const checkAccess = async (userId: string, mediaId: string) => {
+    const media = await prisma.media.findUnique({ where: { id: mediaId } });
+    if (!media) {
+        throw new AppError(status.NOT_FOUND, "Media not found");
+    }
+
+    // Free media is always accessible
+    if (media.pricingType === "FREE") {
+        return { hasAccess: true, reason: "free" };
+    }
+
+    // Premium — check for a completed purchase
+    const purchase = await prisma.purchase.findFirst({
+        where: { userId, mediaId, status: "COMPLETED" },
+    });
+
+    if (purchase) {
+        return { hasAccess: true, reason: "purchased" };
+    }
+
+    return { hasAccess: false, reason: "purchase_required" };
+};
+
 export const MediaService = {
     getAllMedia,
     getMediaById,
     createMedia,
     updateMedia,
     deleteMedia,
+    checkAccess,
 };

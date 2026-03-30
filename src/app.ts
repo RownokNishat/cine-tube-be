@@ -6,6 +6,7 @@ import path from "path";
 import qs from "qs";
 import { envVars } from "./app/config/env.js";
 import { auth } from "./lib/auth.js";
+import { PurchaseController } from "./app/modules/purchase/purchase.controller.js";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler.js";
 import { notFound } from "./app/middleware/notFound.js";
 import { IndexRoutes } from "./app/routes/index.js";
@@ -25,6 +26,9 @@ app.use(
 );
 
 app.use("/api/auth", toNodeHandler(auth));
+
+// Stripe webhook MUST be before express.json() — requires raw body
+app.post("/api/v1/stripe/webhook", express.raw({ type: "application/json" }), PurchaseController.stripeWebhook);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

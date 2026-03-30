@@ -88,10 +88,22 @@ const deleteMedia = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const checkAccess = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.userId;
+    const result = await MediaService.checkAccess(userId, String(req.params.id));
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: result.hasAccess ? "Access granted" : "Access denied",
+        data: result,
+    });
+});
+
 export const MediaController = {
     getAllMedia,
     getMediaById,
     createMedia,
     updateMedia,
     deleteMedia,
+    checkAccess,
 };

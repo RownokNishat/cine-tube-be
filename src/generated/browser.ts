@@ -88,6 +88,11 @@ export type CommentLike = Prisma.CommentLikeModel
  */
 export type Watchlist = Prisma.WatchlistModel
 /**
+ * Model Purchase
+ * 
+ */
+export type Purchase = Prisma.PurchaseModel
+/**
  * Model Subscription
  * 
  */
