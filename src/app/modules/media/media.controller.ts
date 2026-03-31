@@ -70,6 +70,9 @@ const createMedia = catchAsync(async (req: Request, res: Response) => {
     if (isEditorPick !== undefined) {
         payload.isEditorPick = isEditorPick;
     }
+    if (payload.price !== undefined) {
+        payload.price = Number(payload.price);
+    }
 
     const result = await MediaService.createMedia(payload, req.file);
     sendResponse(res, {
@@ -102,6 +105,9 @@ const updateMedia = catchAsync(async (req: Request, res: Response) => {
     const isEditorPick = parseOptionalBoolean(payload.isEditorPick);
     if (isEditorPick !== undefined) {
         payload.isEditorPick = isEditorPick;
+    }
+    if (payload.price !== undefined) {
+        payload.price = Number(payload.price);
     }
 
     const result = await MediaService.updateMedia(String(req.params.id), payload, req.file);

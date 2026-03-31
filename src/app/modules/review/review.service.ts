@@ -723,6 +723,43 @@ const getMediaStats = async (mediaId: string) => {
     };
 };
 
+const getAdminStats = async () => {
+    const [totalReviews, pendingReviewsCount, recentReviews] = await Promise.all([
+        prisma.review.count(),
+        prisma.review.count({ where: { status: ReviewStatus.PENDING } }),
+        prisma.review.findMany({
+            take: 5,
+            orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                content: true,
+                rating: true,
+                status: true,
+                createdAt: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                    },
+                },
+                media: {
+                    select: {
+                        id: true,
+                        title: true,
+                    },
+                },
+            },
+        }),
+    ]);
+
+    return {
+        totalReviews,
+        pendingReviewsCount,
+        recentReviews,
+    };
+};
+
 export const ReviewService = {
     // User actions
     createReview,
@@ -747,4 +784,5 @@ export const ReviewService = {
     deleteReviewAsAdmin,
     deleteCommentAsAdmin,
     getMediaStats,
+    getAdminStats,
 };

@@ -269,6 +269,26 @@ export declare const ReviewService: {
             tags: string[];
         }[];
     }>;
+    getAdminStats: () => Promise<{
+        totalReviews: number;
+        pendingReviewsCount: number;
+        recentReviews: {
+            user: {
+                name: string;
+                id: string;
+                image: string | null;
+            };
+            status: ReviewStatus;
+            id: string;
+            createdAt: Date;
+            media: {
+                id: string;
+                title: string;
+            };
+            rating: number;
+            content: string;
+        }[];
+    }>;
 };
 export {};
 //# sourceMappingURL=review.service.d.ts.map

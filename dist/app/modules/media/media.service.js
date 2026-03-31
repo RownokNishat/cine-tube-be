@@ -1,5 +1,5 @@
 import status from "http-status";
-import { MediaStatus, MediaType, PricingType, ReviewStatus } from "../../../generated/enums.js";
+import { MediaStatus, MediaType, PricingType, ReviewStatus, SubscriptionStatus } from "../../../generated/enums.js";
 import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../config/cloudinary.config.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
@@ -227,7 +227,7 @@ const getMediaById = async (id) => {
     return transformMediaRecord(media);
 };
 const createMedia = async (payload, posterFile) => {
-    const { title, synopsis, releaseYear, director, cast, streamingPlatform, pricingType, streamingLink, trailerUrl, isFeatured, isEditorPick, mediaType, status: mediaStatus, genreIds, } = payload;
+    const { title, synopsis, releaseYear, price, director, cast, streamingPlatform, pricingType, streamingLink, trailerUrl, isFeatured, isEditorPick, mediaType, status: mediaStatus, genreIds, } = payload;
     let posterUrl;
     if (posterFile) {
         const uploaded = await uploadFileToCloudinary(posterFile.buffer, posterFile.originalname);
@@ -242,11 +242,18 @@ const createMedia = async (payload, posterFile) => {
             throw new AppError(status.BAD_REQUEST, "One or more genre IDs are invalid");
         }
     }
+    const normalizedPrice = pricingType === PricingType.PREMIUM
+        ? Number(price)
+        : 0;
+    if (pricingType === PricingType.PREMIUM && (!Number.isFinite(normalizedPrice) || normalizedPrice <= 0)) {
+        throw new AppError(status.BAD_REQUEST, "Premium media requires a valid price greater than 0");
+    }
     const media = await prisma.media.create({
         data: {
             title,
             synopsis,
             releaseYear: Number(releaseYear),
+            price: normalizedPrice,
             director: director ?? "",
             cast: cast ?? [],
             streamingPlatform: streamingPlatform ?? [],
@@ -282,6 +289,18 @@ const updateMedia = async (id, payload, posterFile) => {
         posterUrl = uploaded.secure_url;
     }
     const { genreIds, releaseYear, ...rest } = payload;
+    const nextPricingType = rest.pricingType ?? existing.pricingType;
+    let nextPrice = rest.price;
+    if (nextPricingType === PricingType.FREE) {
+        nextPrice = 0;
+    }
+    else if (nextPrice !== undefined) {
+        const normalized = Number(nextPrice);
+        if (!Number.isFinite(normalized) || normalized <= 0) {
+            throw new AppError(status.BAD_REQUEST, "Premium media requires a valid price greater than 0");
+        }
+        nextPrice = normalized;
+    }
     await prisma.$transaction(async (tx) => {
         if (genreIds !== undefined) {
             await tx.mediaGenre.deleteMany({ where: { mediaId: id } });
@@ -295,6 +314,7 @@ const updateMedia = async (id, payload, posterFile) => {
             where: { id },
             data: {
                 ...rest,
+                ...(nextPrice !== undefined && { price: nextPrice }),
                 ...(releaseYear !== undefined && { releaseYear: Number(releaseYear) }),
                 posterUrl,
             },
@@ -321,11 +341,29 @@ const checkAccess = async (userId, mediaId) => {
     if (media.pricingType === "FREE") {
         return { hasAccess: true, reason: "free" };
     }
-    // Premium — check for a completed purchase
+    const now = new Date();
+    const activeSubscription = await prisma.subscription.findFirst({
+        where: {
+            userId,
+            status: SubscriptionStatus.ACTIVE,
+            endDate: { gt: now },
+        },
+    });
+    if (activeSubscription) {
+        return { hasAccess: true, reason: "subscription" };
+    }
+    // Premium without subscription — check completed purchase/rental for this media
     const purchase = await prisma.purchase.findFirst({
         where: { userId, mediaId, status: "COMPLETED" },
+        orderBy: { createdAt: "desc" },
     });
     if (purchase) {
+        if (purchase.purchaseType === "RENTAL") {
+            if (!purchase.rentalExpiresAt || purchase.rentalExpiresAt <= now) {
+                return { hasAccess: false, reason: "rental_expired" };
+            }
+            return { hasAccess: true, reason: "rented" };
+        }
         return { hasAccess: true, reason: "purchased" };
     }
     return { hasAccess: false, reason: "purchase_required" };

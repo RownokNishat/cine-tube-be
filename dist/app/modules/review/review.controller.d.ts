@@ -23,5 +23,6 @@ export declare const ReviewController: {
     deleteReviewAsAdmin: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     deleteCommentAsAdmin: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     getMediaStats: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    getAdminStats: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
 };
 //# sourceMappingURL=review.controller.d.ts.map

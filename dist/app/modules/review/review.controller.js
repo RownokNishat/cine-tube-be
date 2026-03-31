@@ -78,6 +78,15 @@ const getMyReviews = catchAsync(async (req, res) => {
         meta: result.meta,
     });
 });
+const getAdminStats = catchAsync(async (_req, res) => {
+    const result = await ReviewService.getAdminStats();
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Review stats fetched successfully",
+        data: result,
+    });
+});
 const getReviewPermissions = catchAsync(async (req, res) => {
     const userId = req.user.userId;
     const reviewId = req.params.reviewId;
@@ -300,5 +309,6 @@ export const ReviewController = {
     deleteReviewAsAdmin,
     deleteCommentAsAdmin,
     getMediaStats,
+    getAdminStats,
 };
 //# sourceMappingURL=review.controller.js.map

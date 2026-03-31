@@ -1,5 +1,5 @@
 import status from "http-status";
-import { MediaStatus, MediaType, PricingType, ReviewStatus } from "../../../generated/enums.js";
+import { MediaStatus, MediaType, PricingType, ReviewStatus, SubscriptionStatus } from "../../../generated/enums.js";
 import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../config/cloudinary.config.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { IQueryParams } from "../../interfaces/query.interface.js";
@@ -297,6 +297,7 @@ const createMedia = async (
         title,
         synopsis,
         releaseYear,
+        price,
         director,
         cast,
         streamingPlatform,
@@ -326,11 +327,20 @@ const createMedia = async (
         }
     }
 
+    const normalizedPrice = pricingType === PricingType.PREMIUM
+        ? Number(price)
+        : 0;
+
+    if (pricingType === PricingType.PREMIUM && (!Number.isFinite(normalizedPrice) || normalizedPrice <= 0)) {
+        throw new AppError(status.BAD_REQUEST, "Premium media requires a valid price greater than 0");
+    }
+
     const media = await prisma.media.create({
         data: {
             title,
             synopsis,
             releaseYear: Number(releaseYear),
+            price: normalizedPrice,
             director: director ?? "",
             cast: cast ?? [],
             streamingPlatform: streamingPlatform ?? [],
@@ -375,6 +385,19 @@ const updateMedia = async (
 
     const { genreIds, releaseYear, ...rest } = payload;
 
+    const nextPricingType = rest.pricingType ?? existing.pricingType;
+    let nextPrice = rest.price;
+
+    if (nextPricingType === PricingType.FREE) {
+        nextPrice = 0;
+    } else if (nextPrice !== undefined) {
+        const normalized = Number(nextPrice);
+        if (!Number.isFinite(normalized) || normalized <= 0) {
+            throw new AppError(status.BAD_REQUEST, "Premium media requires a valid price greater than 0");
+        }
+        nextPrice = normalized;
+    }
+
     await prisma.$transaction(async (tx) => {
         if (genreIds !== undefined) {
             await tx.mediaGenre.deleteMany({ where: { mediaId: id } });
@@ -389,6 +412,7 @@ const updateMedia = async (
             where: { id },
             data: {
                 ...rest,
+                ...(nextPrice !== undefined && { price: nextPrice }),
                 ...(releaseYear !== undefined && { releaseYear: Number(releaseYear) }),
                 posterUrl,
             },
@@ -422,12 +446,35 @@ const checkAccess = async (userId: string, mediaId: string) => {
         return { hasAccess: true, reason: "free" };
     }
 
-    // Premium — check for a completed purchase
+    const now = new Date();
+
+    const activeSubscription = await prisma.subscription.findFirst({
+        where: {
+            userId,
+            status: SubscriptionStatus.ACTIVE,
+            endDate: { gt: now },
+        },
+    });
+
+    if (activeSubscription) {
+        return { hasAccess: true, reason: "subscription" };
+    }
+
+    // Premium without subscription — check completed purchase/rental for this media
     const purchase = await prisma.purchase.findFirst({
         where: { userId, mediaId, status: "COMPLETED" },
+        orderBy: { createdAt: "desc" },
     });
 
     if (purchase) {
+        if (purchase.purchaseType === "RENTAL") {
+            if (!purchase.rentalExpiresAt || purchase.rentalExpiresAt <= now) {
+                return { hasAccess: false, reason: "rental_expired" };
+            }
+
+            return { hasAccess: true, reason: "rented" };
+        }
+
         return { hasAccess: true, reason: "purchased" };
     }
 

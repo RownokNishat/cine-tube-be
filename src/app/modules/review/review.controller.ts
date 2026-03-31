@@ -111,6 +111,17 @@ const getMyReviews = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getAdminStats = catchAsync(async (_req: Request, res: Response) => {
+    const result = await ReviewService.getAdminStats();
+
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Review stats fetched successfully",
+        data: result,
+    });
+});
+
 const getReviewPermissions = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.userId;
     const reviewId = req.params.reviewId as string;
@@ -382,4 +393,5 @@ export const ReviewController = {
     deleteReviewAsAdmin,
     deleteCommentAsAdmin,
     getMediaStats,
+    getAdminStats,
 };

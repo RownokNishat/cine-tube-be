@@ -9,6 +9,10 @@ import { ReviewRoutes } from "../modules/review/review.route.js";
 import { SubscriptionRoutes } from "../modules/subscription/subscription.route.js";
 import { UserRoutes } from "../modules/user/user.router.js";
 import { WatchlistRoutes } from "../modules/watchlist/watchlist.route.js";
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+
 const router = Router();
 router.use("/auth", AuthRoutes);
 router.use("/content", ContentRoutes);
