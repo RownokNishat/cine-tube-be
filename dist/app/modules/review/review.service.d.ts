@@ -1,4 +1,4 @@
-import { ReviewStatus } from "../../../generated/enums.js";
+import { ReviewStatus, CommentStatus } from "../../../generated/enums.js";
 import { IQueryParams } from "../../interfaces/query.interface.js";
 interface ICreateReviewPayload {
     rating: number;
@@ -120,6 +120,7 @@ export declare const ReviewService: {
             replies: number;
         };
     } & {
+        status: CommentStatus;
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -154,6 +155,7 @@ export declare const ReviewService: {
             replies: number;
         };
     } & {
+        status: CommentStatus;
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -174,6 +176,7 @@ export declare const ReviewService: {
             likes: number;
         };
     } & {
+        status: CommentStatus;
         id: string;
         createdAt: Date;
         updatedAt: Date;
@@ -288,6 +291,60 @@ export declare const ReviewService: {
             rating: number;
             content: string;
         }[];
+    }>;
+    getAllPublishedReviews: (queryParams: IQueryParams, currentUserId?: string) => Promise<{
+        data: {
+            likedByMe: boolean;
+        }[];
+        meta: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+        };
+    }>;
+    getAdminComments: (queryParams: IQueryParams) => Promise<import("../../interfaces/query.interface.js").IQueryResult<unknown>>;
+    approveComment: (commentId: string) => Promise<{
+        user: {
+            name: string;
+            id: string;
+            email: string;
+            image: string | null;
+        };
+        _count: {
+            likes: number;
+            replies: number;
+        };
+    } & {
+        status: CommentStatus;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        content: string;
+        reviewId: string;
+        parentId: string | null;
+    }>;
+    unpublishComment: (commentId: string) => Promise<{
+        user: {
+            name: string;
+            id: string;
+            email: string;
+            image: string | null;
+        };
+        _count: {
+            likes: number;
+            replies: number;
+        };
+    } & {
+        status: CommentStatus;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        content: string;
+        reviewId: string;
+        parentId: string | null;
     }>;
 };
 export {};

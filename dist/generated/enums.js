@@ -34,6 +34,11 @@ export const ReviewStatus = {
     PUBLISHED: 'PUBLISHED',
     UNPUBLISHED: 'UNPUBLISHED'
 };
+export const CommentStatus = {
+    PENDING: 'PENDING',
+    PUBLISHED: 'PUBLISHED',
+    UNPUBLISHED: 'UNPUBLISHED'
+};
 export const SubscriptionPlan = {
     FREE: 'FREE',
     MONTHLY: 'MONTHLY',

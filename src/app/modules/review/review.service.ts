@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import { ReviewStatus } from "../../../generated/enums.js";
+import { ReviewStatus, CommentStatus } from "../../../generated/enums.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
 import { IQueryParams } from "../../interfaces/query.interface.js";
@@ -401,7 +401,7 @@ const addComment = async (userId: string, reviewId: string, content: string) => 
     }
 
     const comment = await prisma.reviewComment.create({
-        data: { userId, reviewId, content },
+        data: { userId, reviewId, content, status: CommentStatus.PENDING },
         include: {
             user: {
                 select: { id: true, name: true, email: true, image: true },
@@ -435,7 +435,7 @@ const getReviewComments = async (reviewId: string, queryParams: IQueryParams, cu
 
     const result = await builder
         .search()
-        .where({ reviewId, parentId: null }) // Only top-level comments
+        .where({ reviewId, parentId: null, status: CommentStatus.PUBLISHED }) // Only published top-level comments
         .sort()
         .paginate()
         .include({
@@ -444,6 +444,7 @@ const getReviewComments = async (reviewId: string, queryParams: IQueryParams, cu
             },
             replies: {
                 orderBy: { createdAt: "asc" },
+                where: { status: CommentStatus.PUBLISHED },
                 include: {
                     user: {
                         select: { id: true, name: true, image: true },
@@ -473,6 +474,10 @@ const updateComment = async (userId: string, commentId: string, content: string)
 
     if (comment.userId !== userId) {
         throw new AppError(httpStatus.FORBIDDEN, "You can only edit your own comment");
+    }
+
+    if (comment.status === CommentStatus.PUBLISHED) {
+        throw new AppError(httpStatus.BAD_REQUEST, "You can only edit unpublished comments");
     }
 
     const updated = await prisma.reviewComment.update({
@@ -533,6 +538,7 @@ const replyToComment = async (userId: string, commentId: string, content: string
             userId,
             reviewId: parentComment.reviewId,
             content,
+            status: CommentStatus.PENDING,
             parentId: commentId,
         },
         include: {
@@ -760,6 +766,118 @@ const getAdminStats = async () => {
     };
 };
 
+const getAllPublishedReviews = async (queryParams: IQueryParams, currentUserId?: string) => {
+    const builder = new QueryBuilder(prisma.review, queryParams, {
+        searchableFields: ["content"],
+        filterableFields: ["rating", "isSpoiler", "mediaId"],
+    });
+
+    const result = await builder
+        .search()
+        .filter()
+        .where({ status: ReviewStatus.PUBLISHED })
+        .sort()
+        .paginate()
+        .include({
+            user: {
+                select: { id: true, name: true, email: true, image: true },
+            },
+            media: {
+                select: { id: true, title: true, posterUrl: true },
+            },
+            _count: {
+                select: { likes: true, comments: true },
+            },
+        })
+        .execute();
+
+    const reviews = await attachLikedByMeToReviews(result.data as Record<string, unknown>[], currentUserId);
+
+    return {
+        data: reviews,
+        meta: result.meta,
+    };
+};
+
+const getAdminComments = async (queryParams: IQueryParams) => {
+    const builder = new QueryBuilder(
+        prisma.reviewComment as unknown as {
+            findMany: (args?: unknown) => Promise<unknown[]>;
+            count: (args?: unknown) => Promise<number>;
+        },
+        queryParams,
+        {
+            searchableFields: ["content", "user.name", "review.media.title"],
+            filterableFields: ["status", "reviewId"],
+        },
+    );
+
+    const result = await builder
+        .search()
+        .filter()
+        .sort()
+        .paginate()
+        .include({
+            user: {
+                select: { id: true, name: true, image: true },
+            },
+            review: {
+                select: {
+                    id: true,
+                    media: {
+                        select: { id: true, title: true, posterUrl: true },
+                    },
+                },
+            },
+            _count: {
+                select: { likes: true, replies: true },
+            },
+        })
+        .execute();
+
+    return result;
+};
+
+const approveComment = async (commentId: string) => {
+    const comment = await prisma.reviewComment.findUnique({ where: { id: commentId } });
+    if (!comment) {
+        throw new AppError(httpStatus.NOT_FOUND, "Comment not found");
+    }
+
+    return await prisma.reviewComment.update({
+        where: { id: commentId },
+        data: { status: CommentStatus.PUBLISHED },
+        include: {
+            user: {
+                select: { id: true, name: true, email: true, image: true },
+            },
+            _count: {
+                select: { likes: true, replies: true },
+            },
+        },
+    });
+};
+
+const unpublishComment = async (commentId: string) => {
+    const comment = await prisma.reviewComment.findUnique({ where: { id: commentId } });
+    if (!comment) {
+        throw new AppError(httpStatus.NOT_FOUND, "Comment not found");
+    }
+
+    return await prisma.reviewComment.update({
+        where: { id: commentId },
+        data: { status: CommentStatus.UNPUBLISHED },
+        include: {
+            user: {
+                select: { id: true, name: true, email: true, image: true },
+            },
+            _count: {
+                select: { likes: true, replies: true },
+            },
+        },
+    });
+};
+
 export const ReviewService = {
     // User actions
     createReview,
@@ -785,4 +903,8 @@ export const ReviewService = {
     deleteCommentAsAdmin,
     getMediaStats,
     getAdminStats,
+    getAllPublishedReviews,
+    getAdminComments,
+    approveComment,
+    unpublishComment,
 };

@@ -14,6 +14,9 @@ const router = Router();
 
 // ==================== REVIEWS ====================
 
+// GET /api/v1/reviews - list all published reviews (paginated)
+router.get("/", ReviewController.getAllPublishedReviews);
+
 // GET /api/v1/reviews/media/:mediaId - list all published reviews for a media
 router.get("/media/:mediaId", ReviewController.getMediaReviews);
 
@@ -29,6 +32,13 @@ router.get(
     "/admin/stats",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     ReviewController.getAdminStats,
+);
+
+// GET /api/v1/reviews/admin/comments - admin list comments with filters
+router.get(
+    "/admin/comments",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    ReviewController.getAdminComments,
 );
 
 // POST /api/v1/reviews/media/:mediaId - create a review
@@ -176,6 +186,20 @@ router.delete(
     "/comments/:commentId/admin",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     ReviewController.deleteCommentAsAdmin,
+);
+
+// PATCH /api/v1/comments/:commentId/approve - admin approve pending comment
+router.patch(
+    "/comments/:commentId/approve",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    ReviewController.approveComment,
+);
+
+// PATCH /api/v1/comments/:commentId/unpublish - admin unpublish comment
+router.patch(
+    "/comments/:commentId/unpublish",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    ReviewController.unpublishComment,
 );
 
 // GET /api/v1/reviews/media/:mediaId/stats - get aggregated review stats

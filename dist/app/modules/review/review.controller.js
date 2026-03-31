@@ -284,6 +284,47 @@ const getMediaStats = catchAsync(async (req, res) => {
         data: result,
     });
 });
+const getAllPublishedReviews = catchAsync(async (req, res) => {
+    const currentUserId = resolveOptionalUserId(req);
+    const result = await ReviewService.getAllPublishedReviews(req.query, currentUserId);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Published reviews fetched successfully",
+        data: result.data,
+        meta: result.meta,
+    });
+});
+const approveComment = catchAsync(async (req, res) => {
+    const commentId = req.params.commentId;
+    const result = await ReviewService.approveComment(commentId);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Comment approved and published",
+        data: result,
+    });
+});
+const unpublishComment = catchAsync(async (req, res) => {
+    const commentId = req.params.commentId;
+    const result = await ReviewService.unpublishComment(commentId);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Comment unpublished",
+        data: result,
+    });
+});
+const getAdminComments = catchAsync(async (req, res) => {
+    const result = await ReviewService.getAdminComments(req.query);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Admin comments fetched successfully",
+        data: result.data,
+        meta: result.meta,
+    });
+});
 export const ReviewController = {
     createReview,
     getMediaReviews,
@@ -310,5 +351,9 @@ export const ReviewController = {
     deleteCommentAsAdmin,
     getMediaStats,
     getAdminStats,
+    getAllPublishedReviews,
+    getAdminComments,
+    approveComment,
+    unpublishComment,
 };
 //# sourceMappingURL=review.controller.js.map

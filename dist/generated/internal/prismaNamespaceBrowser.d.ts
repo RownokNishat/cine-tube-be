@@ -178,6 +178,7 @@ export declare const ReviewCommentScalarFieldEnum: {
     readonly reviewId: "reviewId";
     readonly content: "content";
     readonly parentId: "parentId";
+    readonly status: "status";
     readonly createdAt: "createdAt";
     readonly updatedAt: "updatedAt";
 };

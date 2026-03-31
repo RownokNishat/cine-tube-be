@@ -368,6 +368,54 @@ const getMediaStats = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getAllPublishedReviews = catchAsync(async (req: Request, res: Response) => {
+    const currentUserId = resolveOptionalUserId(req);
+    const result = await ReviewService.getAllPublishedReviews(
+        req.query as unknown as IQueryParams,
+        currentUserId,
+    );
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Published reviews fetched successfully",
+        data: result.data,
+        meta: result.meta,
+    });
+});
+
+const approveComment = catchAsync(async (req: Request, res: Response) => {
+    const commentId = req.params.commentId as string;
+    const result = await ReviewService.approveComment(commentId);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Comment approved and published",
+        data: result,
+    });
+});
+
+const unpublishComment = catchAsync(async (req: Request, res: Response) => {
+    const commentId = req.params.commentId as string;
+    const result = await ReviewService.unpublishComment(commentId);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Comment unpublished",
+        data: result,
+    });
+});
+
+const getAdminComments = catchAsync(async (req: Request, res: Response) => {
+    const result = await ReviewService.getAdminComments(req.query as unknown as IQueryParams);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Admin comments fetched successfully",
+        data: result.data,
+        meta: result.meta,
+    });
+});
+
 export const ReviewController = {
     createReview,
     getMediaReviews,
@@ -394,4 +442,8 @@ export const ReviewController = {
     deleteCommentAsAdmin,
     getMediaStats,
     getAdminStats,
+    getAllPublishedReviews,
+    getAdminComments,
+    approveComment,
+    unpublishComment,
 };

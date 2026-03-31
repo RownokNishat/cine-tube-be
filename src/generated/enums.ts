@@ -60,6 +60,15 @@ export const ReviewStatus = {
 export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus]
 
 
+export const CommentStatus = {
+  PENDING: 'PENDING',
+  PUBLISHED: 'PUBLISHED',
+  UNPUBLISHED: 'UNPUBLISHED'
+} as const
+
+export type CommentStatus = (typeof CommentStatus)[keyof typeof CommentStatus]
+
+
 export const SubscriptionPlan = {
   FREE: 'FREE',
   MONTHLY: 'MONTHLY',

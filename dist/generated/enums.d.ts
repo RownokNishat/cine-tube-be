@@ -31,6 +31,12 @@ export declare const ReviewStatus: {
     readonly UNPUBLISHED: "UNPUBLISHED";
 };
 export type ReviewStatus = (typeof ReviewStatus)[keyof typeof ReviewStatus];
+export declare const CommentStatus: {
+    readonly PENDING: "PENDING";
+    readonly PUBLISHED: "PUBLISHED";
+    readonly UNPUBLISHED: "UNPUBLISHED";
+};
+export type CommentStatus = (typeof CommentStatus)[keyof typeof CommentStatus];
 export declare const SubscriptionPlan: {
     readonly FREE: "FREE";
     readonly MONTHLY: "MONTHLY";

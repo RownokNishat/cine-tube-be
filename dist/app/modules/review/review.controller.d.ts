@@ -24,5 +24,9 @@ export declare const ReviewController: {
     deleteCommentAsAdmin: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     getMediaStats: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     getAdminStats: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    getAllPublishedReviews: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    getAdminComments: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    approveComment: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    unpublishComment: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
 };
 //# sourceMappingURL=review.controller.d.ts.map

@@ -6,12 +6,16 @@ import { ReviewController } from "./review.controller.js";
 import { createReviewSchema, updateReviewSchema, addCommentSchema, updateCommentSchema, } from "./review.validation.js";
 const router = Router();
 // ==================== REVIEWS ====================
+// GET /api/v1/reviews - list all published reviews (paginated)
+router.get("/", ReviewController.getAllPublishedReviews);
 // GET /api/v1/reviews/media/:mediaId - list all published reviews for a media
 router.get("/media/:mediaId", ReviewController.getMediaReviews);
 // GET /api/v1/reviews/admin/media/:mediaId - admin review list with status filtering
 router.get("/admin/media/:mediaId", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.getMediaReviewsForAdmin);
 // GET /api/v1/reviews/admin/stats - admin review counters and recent reviews
 router.get("/admin/stats", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.getAdminStats);
+// GET /api/v1/reviews/admin/comments - admin list comments with filters
+router.get("/admin/comments", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.getAdminComments);
 // POST /api/v1/reviews/media/:mediaId - create a review
 router.post("/media/:mediaId", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), validateRequest(createReviewSchema), ReviewController.createReview);
 // GET /api/v1/reviews/me - list current user's reviews with action permissions
@@ -57,6 +61,10 @@ router.patch("/:reviewId/reject", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), Revie
 router.delete("/:reviewId/admin", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.deleteReviewAsAdmin);
 // DELETE /api/v1/reviews/comments/:commentId/admin - admin delete comment
 router.delete("/comments/:commentId/admin", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.deleteCommentAsAdmin);
+// PATCH /api/v1/comments/:commentId/approve - admin approve pending comment
+router.patch("/comments/:commentId/approve", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.approveComment);
+// PATCH /api/v1/comments/:commentId/unpublish - admin unpublish comment
+router.patch("/comments/:commentId/unpublish", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.unpublishComment);
 // GET /api/v1/reviews/media/:mediaId/stats - get aggregated review stats
 router.get("/media/:mediaId/stats", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.getMediaStats);
 export const ReviewRoutes = router;

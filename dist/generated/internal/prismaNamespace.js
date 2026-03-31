@@ -209,6 +209,7 @@ export const ReviewCommentScalarFieldEnum = {
     reviewId: 'reviewId',
     content: 'content',
     parentId: 'parentId',
+    status: 'status',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

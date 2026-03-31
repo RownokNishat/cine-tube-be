@@ -30,6 +30,7 @@ export type ReviewCommentMinAggregateOutputType = {
   reviewId: string | null
   content: string | null
   parentId: string | null
+  status: $Enums.CommentStatus | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,6 +41,7 @@ export type ReviewCommentMaxAggregateOutputType = {
   reviewId: string | null
   content: string | null
   parentId: string | null
+  status: $Enums.CommentStatus | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +52,7 @@ export type ReviewCommentCountAggregateOutputType = {
   reviewId: number
   content: number
   parentId: number
+  status: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,6 +65,7 @@ export type ReviewCommentMinAggregateInputType = {
   reviewId?: true
   content?: true
   parentId?: true
+  status?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -72,6 +76,7 @@ export type ReviewCommentMaxAggregateInputType = {
   reviewId?: true
   content?: true
   parentId?: true
+  status?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +87,7 @@ export type ReviewCommentCountAggregateInputType = {
   reviewId?: true
   content?: true
   parentId?: true
+  status?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -165,6 +171,7 @@ export type ReviewCommentGroupByOutputType = {
   reviewId: string
   content: string
   parentId: string | null
+  status: $Enums.CommentStatus
   createdAt: Date
   updatedAt: Date
   _count: ReviewCommentCountAggregateOutputType | null
@@ -196,6 +203,7 @@ export type ReviewCommentWhereInput = {
   reviewId?: Prisma.StringFilter<"ReviewComment"> | string
   content?: Prisma.StringFilter<"ReviewComment"> | string
   parentId?: Prisma.StringNullableFilter<"ReviewComment"> | string | null
+  status?: Prisma.EnumCommentStatusFilter<"ReviewComment"> | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFilter<"ReviewComment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ReviewComment"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -211,6 +219,7 @@ export type ReviewCommentOrderByWithRelationInput = {
   reviewId?: Prisma.SortOrder
   content?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -229,6 +238,7 @@ export type ReviewCommentWhereUniqueInput = Prisma.AtLeast<{
   reviewId?: Prisma.StringFilter<"ReviewComment"> | string
   content?: Prisma.StringFilter<"ReviewComment"> | string
   parentId?: Prisma.StringNullableFilter<"ReviewComment"> | string | null
+  status?: Prisma.EnumCommentStatusFilter<"ReviewComment"> | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFilter<"ReviewComment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ReviewComment"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -244,6 +254,7 @@ export type ReviewCommentOrderByWithAggregationInput = {
   reviewId?: Prisma.SortOrder
   content?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ReviewCommentCountOrderByAggregateInput
@@ -260,6 +271,7 @@ export type ReviewCommentScalarWhereWithAggregatesInput = {
   reviewId?: Prisma.StringWithAggregatesFilter<"ReviewComment"> | string
   content?: Prisma.StringWithAggregatesFilter<"ReviewComment"> | string
   parentId?: Prisma.StringNullableWithAggregatesFilter<"ReviewComment"> | string | null
+  status?: Prisma.EnumCommentStatusWithAggregatesFilter<"ReviewComment"> | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ReviewComment"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ReviewComment"> | Date | string
 }
@@ -267,6 +279,7 @@ export type ReviewCommentScalarWhereWithAggregatesInput = {
 export type ReviewCommentCreateInput = {
   id?: string
   content: string
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCommentsInput
@@ -282,6 +295,7 @@ export type ReviewCommentUncheckedCreateInput = {
   reviewId: string
   content: string
   parentId?: string | null
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReviewCommentUncheckedCreateNestedManyWithoutParentInput
@@ -291,6 +305,7 @@ export type ReviewCommentUncheckedCreateInput = {
 export type ReviewCommentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCommentsNestedInput
@@ -306,6 +321,7 @@ export type ReviewCommentUncheckedUpdateInput = {
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReviewCommentUncheckedUpdateManyWithoutParentNestedInput
@@ -318,6 +334,7 @@ export type ReviewCommentCreateManyInput = {
   reviewId: string
   content: string
   parentId?: string | null
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -325,6 +342,7 @@ export type ReviewCommentCreateManyInput = {
 export type ReviewCommentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -335,6 +353,7 @@ export type ReviewCommentUncheckedUpdateManyInput = {
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -360,6 +379,7 @@ export type ReviewCommentCountOrderByAggregateInput = {
   reviewId?: Prisma.SortOrder
   content?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -370,6 +390,7 @@ export type ReviewCommentMaxOrderByAggregateInput = {
   reviewId?: Prisma.SortOrder
   content?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -380,6 +401,7 @@ export type ReviewCommentMinOrderByAggregateInput = {
   reviewId?: Prisma.SortOrder
   content?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -493,6 +515,10 @@ export type ReviewCommentUncheckedCreateNestedManyWithoutParentInput = {
   connect?: Prisma.ReviewCommentWhereUniqueInput | Prisma.ReviewCommentWhereUniqueInput[]
 }
 
+export type EnumCommentStatusFieldUpdateOperationsInput = {
+  set?: $Enums.CommentStatus
+}
+
 export type ReviewCommentUpdateOneWithoutRepliesNestedInput = {
   create?: Prisma.XOR<Prisma.ReviewCommentCreateWithoutRepliesInput, Prisma.ReviewCommentUncheckedCreateWithoutRepliesInput>
   connectOrCreate?: Prisma.ReviewCommentCreateOrConnectWithoutRepliesInput
@@ -548,6 +574,7 @@ export type ReviewCommentUpdateOneRequiredWithoutLikesNestedInput = {
 export type ReviewCommentCreateWithoutUserInput = {
   id?: string
   content: string
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   review: Prisma.ReviewCreateNestedOneWithoutCommentsInput
@@ -561,6 +588,7 @@ export type ReviewCommentUncheckedCreateWithoutUserInput = {
   reviewId: string
   content: string
   parentId?: string | null
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReviewCommentUncheckedCreateNestedManyWithoutParentInput
@@ -602,6 +630,7 @@ export type ReviewCommentScalarWhereInput = {
   reviewId?: Prisma.StringFilter<"ReviewComment"> | string
   content?: Prisma.StringFilter<"ReviewComment"> | string
   parentId?: Prisma.StringNullableFilter<"ReviewComment"> | string | null
+  status?: Prisma.EnumCommentStatusFilter<"ReviewComment"> | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFilter<"ReviewComment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ReviewComment"> | Date | string
 }
@@ -609,6 +638,7 @@ export type ReviewCommentScalarWhereInput = {
 export type ReviewCommentCreateWithoutReviewInput = {
   id?: string
   content: string
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCommentsInput
@@ -622,6 +652,7 @@ export type ReviewCommentUncheckedCreateWithoutReviewInput = {
   userId: string
   content: string
   parentId?: string | null
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReviewCommentUncheckedCreateNestedManyWithoutParentInput
@@ -657,6 +688,7 @@ export type ReviewCommentUpdateManyWithWhereWithoutReviewInput = {
 export type ReviewCommentCreateWithoutRepliesInput = {
   id?: string
   content: string
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCommentsInput
@@ -671,6 +703,7 @@ export type ReviewCommentUncheckedCreateWithoutRepliesInput = {
   reviewId: string
   content: string
   parentId?: string | null
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   likes?: Prisma.CommentLikeUncheckedCreateNestedManyWithoutCommentInput
@@ -684,6 +717,7 @@ export type ReviewCommentCreateOrConnectWithoutRepliesInput = {
 export type ReviewCommentCreateWithoutParentInput = {
   id?: string
   content: string
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCommentsInput
@@ -697,6 +731,7 @@ export type ReviewCommentUncheckedCreateWithoutParentInput = {
   userId: string
   reviewId: string
   content: string
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReviewCommentUncheckedCreateNestedManyWithoutParentInput
@@ -727,6 +762,7 @@ export type ReviewCommentUpdateToOneWithWhereWithoutRepliesInput = {
 export type ReviewCommentUpdateWithoutRepliesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCommentsNestedInput
@@ -741,6 +777,7 @@ export type ReviewCommentUncheckedUpdateWithoutRepliesInput = {
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likes?: Prisma.CommentLikeUncheckedUpdateManyWithoutCommentNestedInput
@@ -765,6 +802,7 @@ export type ReviewCommentUpdateManyWithWhereWithoutParentInput = {
 export type ReviewCommentCreateWithoutLikesInput = {
   id?: string
   content: string
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCommentsInput
@@ -779,6 +817,7 @@ export type ReviewCommentUncheckedCreateWithoutLikesInput = {
   reviewId: string
   content: string
   parentId?: string | null
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReviewCommentUncheckedCreateNestedManyWithoutParentInput
@@ -803,6 +842,7 @@ export type ReviewCommentUpdateToOneWithWhereWithoutLikesInput = {
 export type ReviewCommentUpdateWithoutLikesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCommentsNestedInput
@@ -817,6 +857,7 @@ export type ReviewCommentUncheckedUpdateWithoutLikesInput = {
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReviewCommentUncheckedUpdateManyWithoutParentNestedInput
@@ -827,6 +868,7 @@ export type ReviewCommentCreateManyUserInput = {
   reviewId: string
   content: string
   parentId?: string | null
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -834,6 +876,7 @@ export type ReviewCommentCreateManyUserInput = {
 export type ReviewCommentUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   review?: Prisma.ReviewUpdateOneRequiredWithoutCommentsNestedInput
@@ -847,6 +890,7 @@ export type ReviewCommentUncheckedUpdateWithoutUserInput = {
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReviewCommentUncheckedUpdateManyWithoutParentNestedInput
@@ -858,6 +902,7 @@ export type ReviewCommentUncheckedUpdateManyWithoutUserInput = {
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -867,6 +912,7 @@ export type ReviewCommentCreateManyReviewInput = {
   userId: string
   content: string
   parentId?: string | null
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -874,6 +920,7 @@ export type ReviewCommentCreateManyReviewInput = {
 export type ReviewCommentUpdateWithoutReviewInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCommentsNestedInput
@@ -887,6 +934,7 @@ export type ReviewCommentUncheckedUpdateWithoutReviewInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReviewCommentUncheckedUpdateManyWithoutParentNestedInput
@@ -898,6 +946,7 @@ export type ReviewCommentUncheckedUpdateManyWithoutReviewInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
   parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -907,6 +956,7 @@ export type ReviewCommentCreateManyParentInput = {
   userId: string
   reviewId: string
   content: string
+  status?: $Enums.CommentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -914,6 +964,7 @@ export type ReviewCommentCreateManyParentInput = {
 export type ReviewCommentUpdateWithoutParentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCommentsNestedInput
@@ -927,6 +978,7 @@ export type ReviewCommentUncheckedUpdateWithoutParentInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReviewCommentUncheckedUpdateManyWithoutParentNestedInput
@@ -938,6 +990,7 @@ export type ReviewCommentUncheckedUpdateManyWithoutParentInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   reviewId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCommentStatusFieldUpdateOperationsInput | $Enums.CommentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -988,6 +1041,7 @@ export type ReviewCommentSelect<ExtArgs extends runtime.Types.Extensions.Interna
   reviewId?: boolean
   content?: boolean
   parentId?: boolean
+  status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1004,6 +1058,7 @@ export type ReviewCommentSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   reviewId?: boolean
   content?: boolean
   parentId?: boolean
+  status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1017,6 +1072,7 @@ export type ReviewCommentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   reviewId?: boolean
   content?: boolean
   parentId?: boolean
+  status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1030,11 +1086,12 @@ export type ReviewCommentSelectScalar = {
   reviewId?: boolean
   content?: boolean
   parentId?: boolean
+  status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ReviewCommentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "reviewId" | "content" | "parentId" | "createdAt" | "updatedAt", ExtArgs["result"]["reviewComment"]>
+export type ReviewCommentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "reviewId" | "content" | "parentId" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["reviewComment"]>
 export type ReviewCommentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   review?: boolean | Prisma.ReviewDefaultArgs<ExtArgs>
@@ -1069,6 +1126,7 @@ export type $ReviewCommentPayload<ExtArgs extends runtime.Types.Extensions.Inter
     reviewId: string
     content: string
     parentId: string | null
+    status: $Enums.CommentStatus
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["reviewComment"]>
@@ -1504,6 +1562,7 @@ export interface ReviewCommentFieldRefs {
   readonly reviewId: Prisma.FieldRef<"ReviewComment", 'String'>
   readonly content: Prisma.FieldRef<"ReviewComment", 'String'>
   readonly parentId: Prisma.FieldRef<"ReviewComment", 'String'>
+  readonly status: Prisma.FieldRef<"ReviewComment", 'CommentStatus'>
   readonly createdAt: Prisma.FieldRef<"ReviewComment", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ReviewComment", 'DateTime'>
 }
