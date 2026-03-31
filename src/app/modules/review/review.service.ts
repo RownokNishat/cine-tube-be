@@ -19,6 +19,74 @@ interface IUpdateReviewPayload {
     tags?: string[];
 }
 
+const attachLikedByMeToReviews = async (
+    reviews: Record<string, unknown>[],
+    currentUserId?: string,
+) => {
+    if (!currentUserId || reviews.length === 0) {
+        return reviews.map((review) => ({ ...review, likedByMe: false }));
+    }
+
+    const reviewIds = reviews.map((review) => String(review.id));
+    const likes = await prisma.reviewLike.findMany({
+        where: {
+            userId: currentUserId,
+            reviewId: { in: reviewIds },
+        },
+        select: { reviewId: true },
+    });
+
+    const likedReviewIds = new Set(likes.map((like) => like.reviewId));
+    return reviews.map((review) => ({
+        ...review,
+        likedByMe: likedReviewIds.has(String(review.id)),
+    }));
+};
+
+const attachLikedByMeToComments = async (
+    comments: Record<string, unknown>[],
+    currentUserId?: string,
+) => {
+    if (!currentUserId || comments.length === 0) {
+        return comments.map((comment) => ({
+            ...comment,
+            likedByMe: false,
+            replies: Array.isArray(comment.replies)
+                ? (comment.replies as Record<string, unknown>[]).map((reply) => ({ ...reply, likedByMe: false }))
+                : [],
+        }));
+    }
+
+    const topLevelIds = comments.map((comment) => String(comment.id));
+    const replyIds = comments.flatMap((comment) =>
+        Array.isArray(comment.replies)
+            ? (comment.replies as Record<string, unknown>[]).map((reply) => String(reply.id))
+            : [],
+    );
+
+    const allCommentIds = [...topLevelIds, ...replyIds];
+    const likes = await prisma.commentLike.findMany({
+        where: {
+            userId: currentUserId,
+            commentId: { in: allCommentIds },
+        },
+        select: { commentId: true },
+    });
+
+    const likedCommentIds = new Set(likes.map((like) => like.commentId));
+
+    return comments.map((comment) => ({
+        ...comment,
+        likedByMe: likedCommentIds.has(String(comment.id)),
+        replies: Array.isArray(comment.replies)
+            ? (comment.replies as Record<string, unknown>[]).map((reply) => ({
+                  ...reply,
+                  likedByMe: likedCommentIds.has(String(reply.id)),
+              }))
+            : [],
+    }));
+};
+
 // ==================== REVIEWS ====================
 
 const createReview = async (userId: string, mediaId: string, payload: ICreateReviewPayload) => {
@@ -65,6 +133,7 @@ const getMediaReviews = async (
     mediaId: string,
     queryParams: IQueryParams,
     options?: { allowStatusFilter?: boolean },
+    currentUserId?: string,
 ) => {
     const media = await prisma.media.findUnique({ where: { id: mediaId } });
     if (!media) {
@@ -106,10 +175,13 @@ const getMediaReviews = async (
         })
         .execute();
 
-    return result;
+    return {
+        data: await attachLikedByMeToReviews(result.data as Record<string, unknown>[], currentUserId),
+        meta: result.meta,
+    };
 };
 
-const getReviewById = async (reviewId: string) => {
+const getReviewById = async (reviewId: string, currentUserId?: string) => {
     const review = await prisma.review.findUnique({
         where: { id: reviewId },
         include: {
@@ -126,7 +198,12 @@ const getReviewById = async (reviewId: string) => {
         throw new AppError(httpStatus.NOT_FOUND, "Review not found");
     }
 
-    return review;
+    const [decoratedReview] = await attachLikedByMeToReviews(
+        [review as unknown as Record<string, unknown>],
+        currentUserId,
+    );
+
+    return decoratedReview ?? { ...(review as unknown as Record<string, unknown>), likedByMe: false };
 };
 
 const updateReview = async (userId: string, reviewId: string, payload: IUpdateReviewPayload) => {
@@ -241,7 +318,7 @@ const addComment = async (userId: string, reviewId: string, content: string) => 
     return comment;
 };
 
-const getReviewComments = async (reviewId: string, queryParams: IQueryParams) => {
+const getReviewComments = async (reviewId: string, queryParams: IQueryParams, currentUserId?: string) => {
     const review = await prisma.review.findUnique({ where: { id: reviewId } });
     if (!review) {
         throw new AppError(httpStatus.NOT_FOUND, "Review not found");
@@ -285,7 +362,10 @@ const getReviewComments = async (reviewId: string, queryParams: IQueryParams) =>
         })
         .execute();
 
-    return result;
+    return {
+        data: await attachLikedByMeToComments(result.data as Record<string, unknown>[], currentUserId),
+        meta: result.meta,
+    };
 };
 
 const updateComment = async (userId: string, commentId: string, content: string) => {

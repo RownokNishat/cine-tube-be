@@ -1,9 +1,30 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
+import { envVars } from "../../config/env.js";
+import { CookieUtils } from "../../utils/cookie.js";
+import { jwtUtils } from "../../utils/jwt.js";
 import { catchAsync } from "../../shared/catchAsync.js";
 import { sendResponse } from "../../shared/sendResponse.js";
 import { IQueryParams } from "../../interfaces/query.interface.js";
 import { ReviewService } from "./review.service.js";
+
+const resolveOptionalUserId = (req: Request) => {
+    if (req.user?.userId) {
+        return req.user.userId;
+    }
+
+    const accessToken = CookieUtils.getCookie(req, "accessToken");
+    if (!accessToken) {
+        return undefined;
+    }
+
+    const verifiedToken = jwtUtils.verifyToken(accessToken, envVars.ACCESS_TOKEN_SECRET);
+    if (!verifiedToken.success || !verifiedToken.data?.userId || typeof verifiedToken.data.userId !== "string") {
+        return undefined;
+    }
+
+    return verifiedToken.data.userId;
+};
 
 // ==================== REVIEWS ====================
 
@@ -28,10 +49,13 @@ const createReview = catchAsync(async (req: Request, res: Response) => {
 
 const getMediaReviews = catchAsync(async (req: Request, res: Response) => {
     const mediaId = req.params.mediaId as string;
+    const currentUserId = resolveOptionalUserId(req);
 
     const result = await ReviewService.getMediaReviews(
         mediaId,
         req.query as unknown as IQueryParams,
+        undefined,
+        currentUserId,
     );
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
@@ -44,11 +68,13 @@ const getMediaReviews = catchAsync(async (req: Request, res: Response) => {
 
 const getMediaReviewsForAdmin = catchAsync(async (req: Request, res: Response) => {
     const mediaId = req.params.mediaId as string;
+    const currentUserId = req.user.userId;
 
     const result = await ReviewService.getMediaReviews(
         mediaId,
         req.query as unknown as IQueryParams,
         { allowStatusFilter: true },
+        currentUserId,
     );
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
@@ -61,8 +87,9 @@ const getMediaReviewsForAdmin = catchAsync(async (req: Request, res: Response) =
 
 const getReviewById = catchAsync(async (req: Request, res: Response) => {
     const reviewId = req.params.reviewId as string;
+    const currentUserId = resolveOptionalUserId(req);
 
-    const result = await ReviewService.getReviewById(reviewId);
+    const result = await ReviewService.getReviewById(reviewId, currentUserId);
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
@@ -148,10 +175,12 @@ const addComment = catchAsync(async (req: Request, res: Response) => {
 
 const getReviewComments = catchAsync(async (req: Request, res: Response) => {
     const reviewId = req.params.reviewId as string;
+    const currentUserId = resolveOptionalUserId(req);
 
     const result = await ReviewService.getReviewComments(
         reviewId,
         req.query as unknown as IQueryParams,
+        currentUserId,
     );
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
