@@ -1,6 +1,7 @@
 import app from "./app.js";
 import { envVars } from "./app/config/env.js";
 import { seedSuperAdmin } from "./app/utils/seed.js";
+import 'dotenv/config';
 let server;
 const bootstrap = async () => {
     try {
