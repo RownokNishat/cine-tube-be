@@ -24,6 +24,13 @@ router.get(
     ReviewController.getMediaReviewsForAdmin,
 );
 
+// GET /api/v1/reviews/admin/stats - admin review counters and recent reviews
+router.get(
+    "/admin/stats",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    ReviewController.getAdminStats,
+);
+
 // POST /api/v1/reviews/media/:mediaId - create a review
 router.post(
     "/media/:mediaId",

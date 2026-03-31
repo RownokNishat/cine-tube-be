@@ -10,6 +10,8 @@ const router = Router();
 router.get("/media/:mediaId", ReviewController.getMediaReviews);
 // GET /api/v1/reviews/admin/media/:mediaId - admin review list with status filtering
 router.get("/admin/media/:mediaId", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.getMediaReviewsForAdmin);
+// GET /api/v1/reviews/admin/stats - admin review counters and recent reviews
+router.get("/admin/stats", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), ReviewController.getAdminStats);
 // POST /api/v1/reviews/media/:mediaId - create a review
 router.post("/media/:mediaId", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), validateRequest(createReviewSchema), ReviewController.createReview);
 // GET /api/v1/reviews/me - list current user's reviews with action permissions

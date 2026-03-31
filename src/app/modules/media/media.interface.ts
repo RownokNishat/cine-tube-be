@@ -4,6 +4,7 @@ export interface ICreateMediaPayload {
     title: string;
     synopsis: string;
     releaseYear: number;
+    price?: number;
     director?: string;
     cast?: string[];
     streamingPlatform?: string[];
