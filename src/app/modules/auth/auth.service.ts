@@ -207,6 +207,33 @@ const changePassword = async (payload: IChangePasswordPayload, sessionToken: str
     return { ...result, accessToken, refreshToken };
 };
 
+const adminResetPassword = async (payload: { userId: string; newPassword: string }) => {
+    const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    // Force sign-out from all sessions and require password reset on next login.
+    // Better-auth does not provide a direct admin set-password API for another user
+    // through this server-side SDK path, so we initiate a secure reset flow.
+    await prisma.$transaction(async (tx) => {
+        await tx.session.deleteMany({ where: { userId: user.id } });
+        await tx.user.update({
+            where: { id: user.id },
+            data: { needPasswordChange: true },
+        });
+    });
+
+    await auth.api.requestPasswordResetEmailOTP({
+        body: { email: user.email },
+    });
+
+    return {
+        userId: user.id,
+        resetInitiated: true,
+    };
+};
+
 const logoutUser = async (sessionToken: string) => {
     return await auth.api.signOut({
         headers: new Headers({ Authorization: `Bearer ${sessionToken}` }),
@@ -293,6 +320,7 @@ export const AuthService = {
     getMe,
     getNewToken,
     changePassword,
+    adminResetPassword,
     logoutUser,
     verifyEmail,
     forgetPassword,

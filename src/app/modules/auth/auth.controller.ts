@@ -95,6 +95,17 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const adminResetPassword = catchAsync(async (req: Request, res: Response) => {
+    const payload = req.body as { userId: string; newPassword: string };
+    const result = await AuthService.adminResetPassword(payload);
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "Password reset initiated and reset OTP sent to user email",
+        data: result,
+    });
+});
+
 const logoutUser = catchAsync(async (req: Request, res: Response) => {
     const betterAuthSessionToken = req.cookies["better-auth.session_token"] as string;
     const result = await AuthService.logoutUser(betterAuthSessionToken);
@@ -197,6 +208,7 @@ export const AuthController = {
     getMe,
     getNewToken,
     changePassword,
+    adminResetPassword,
     logoutUser,
     verifyEmail,
     forgetPassword,

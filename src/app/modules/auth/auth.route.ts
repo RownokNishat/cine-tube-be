@@ -10,6 +10,7 @@ router.post("/login", AuthController.loginUser);
 router.get("/me", checkAuth(Role.ADMIN, Role.USER, Role.SUPER_ADMIN), AuthController.getMe);
 router.post("/refresh-token", AuthController.getNewToken);
 router.post("/change-password", checkAuth(Role.ADMIN, Role.USER, Role.SUPER_ADMIN), AuthController.changePassword);
+router.post("/admin/reset-password", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), AuthController.adminResetPassword);
 router.post("/logout", checkAuth(Role.ADMIN, Role.USER, Role.SUPER_ADMIN), AuthController.logoutUser);
 router.post("/verify-email", AuthController.verifyEmail);
 router.post("/forget-password", AuthController.forgetPassword);

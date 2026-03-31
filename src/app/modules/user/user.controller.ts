@@ -63,11 +63,59 @@ const updateMe = catchAsync(async (req: Request, res: Response) => {
     });
 });
 
+const getUserById = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params["id"] as string;
+    const result = await UserService.getUserById(id);
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "User fetched successfully",
+        data: result,
+    });
+});
+
+const updateUserProfileById = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params["id"] as string;
+    const payload = req.body as { name: string; image?: string | null };
+    const result = await UserService.updateUserProfileById(id, payload);
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "User profile updated successfully",
+        data: result,
+    });
+});
+
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params["id"] as string;
+    const result = await UserService.updateUserById(id, req.body as Record<string, unknown>);
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "User updated successfully",
+        data: result,
+    });
+});
+
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+    const id = req.params["id"] as string;
+    await UserService.deleteUserById(id);
+    sendResponse(res, {
+        httpStatusCode: status.OK,
+        success: true,
+        message: "User deleted successfully",
+    });
+});
+
 export const UserController = {
     createAdmin,
     getAllUsers,
     updateUserStatus,
     getMe,
     updateMe,
+    getUserById,
+    updateUserProfileById,
+    updateUser,
+    deleteUser,
 };
 

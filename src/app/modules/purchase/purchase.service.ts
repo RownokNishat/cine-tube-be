@@ -4,7 +4,7 @@ import { stripe } from "../../config/stripe.config.js";
 import { envVars } from "../../config/env.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
-import { PricingType } from "../../../generated/enums.js";
+import { PricingType, SubscriptionPlan, SubscriptionStatus } from "../../../generated/enums.js";
 
 const createCheckoutSession = async (userId: string, mediaId: string) => {
     const media = await prisma.media.findUnique({ where: { id: mediaId } });
@@ -100,6 +100,40 @@ const handleWebhookEvent = async (event: Stripe.Event) => {
     if (event.type === "checkout.session.completed") {
         const session = event.data.object as Stripe.Checkout.Session;
 
+        const metadataType = session.metadata?.type;
+
+        if (metadataType === "subscription") {
+            const userId = session.metadata?.userId;
+            const plan = session.metadata?.plan as SubscriptionPlan | undefined;
+            const amount = Number(session.metadata?.amount || 0);
+            const durationDays = Number(session.metadata?.durationDays || 0);
+
+            if (
+                userId &&
+                plan &&
+                (plan === SubscriptionPlan.MONTHLY || plan === SubscriptionPlan.YEARLY)
+            ) {
+                const startDate = new Date();
+                const endDate = new Date(startDate);
+                endDate.setDate(endDate.getDate() + durationDays);
+
+                await prisma.subscription.create({
+                    data: {
+                        userId,
+                        plan,
+                        status: SubscriptionStatus.ACTIVE,
+                        amount,
+                        stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
+                        stripePaymentId: session.payment_intent as string | null,
+                        startDate,
+                        endDate,
+                    },
+                });
+            }
+
+            return;
+        }
+
         await prisma.purchase.updateMany({
             where: { stripeSessionId: session.id },
             data: {
@@ -188,7 +222,7 @@ const checkAccessBySession = async (sessionId: string) => {
             },
         },
     };
-};;
+};
 
 export const PurchaseService = {
     createCheckoutSession,

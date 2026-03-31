@@ -91,6 +91,7 @@ const getMe = async (userId: string) => {
             image: true,
             role: true,
             status: true,
+            isDeleted: true,
             emailVerified: true,
             needPasswordChange: true,
             createdAt: true,
@@ -124,6 +125,7 @@ const updateMe = async (userId: string, payload: { name: string; image?: string 
             image: true,
             role: true,
             status: true,
+            isDeleted: true,
             emailVerified: true,
             needPasswordChange: true,
             createdAt: true,
@@ -134,10 +136,121 @@ const updateMe = async (userId: string, payload: { name: string; image?: string 
     return updated;
 };
 
+const getUserById = async (id: string) => {
+    const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            status: true,
+            isDeleted: true,
+            emailVerified: true,
+            needPasswordChange: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    return user;
+};
+
+const updateUserProfileById = async (id: string, payload: { name: string; image?: string | null }) => {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    return await prisma.user.update({
+        where: { id },
+        data: {
+            name: payload.name,
+            ...(payload.image !== undefined && { image: payload.image }),
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            status: true,
+            isDeleted: true,
+            emailVerified: true,
+            needPasswordChange: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+};
+
+const updateUserById = async (id: string, payload: Record<string, unknown>) => {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    const nextStatus = typeof payload.status === "string" ? payload.status : undefined;
+
+    return await prisma.user.update({
+        where: { id },
+        data: {
+            ...(typeof payload.name === "string" && { name: payload.name }),
+            ...(typeof payload.email === "string" && { email: payload.email }),
+            ...(typeof payload.image === "string" && { image: payload.image }),
+            ...(payload.image === null && { image: null }),
+            ...(typeof payload.role === "string" && { role: payload.role as "USER" | "ADMIN" | "SUPER_ADMIN" }),
+            ...(nextStatus && { status: nextStatus as "ACTIVE" | "BLOCKED" | "DELETED" }),
+            ...(typeof payload.needPasswordChange === "boolean" && { needPasswordChange: payload.needPasswordChange }),
+            ...(typeof payload.isDeleted === "boolean" && { isDeleted: payload.isDeleted }),
+            ...(nextStatus === "DELETED" && { isDeleted: true, deletedAt: new Date() }),
+            ...(nextStatus && nextStatus !== "DELETED" && { deletedAt: null }),
+        },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            status: true,
+            isDeleted: true,
+            emailVerified: true,
+            needPasswordChange: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+};
+
+const deleteUserById = async (id: string) => {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+        throw new AppError(status.NOT_FOUND, "User not found");
+    }
+
+    await prisma.user.update({
+        where: { id },
+        data: {
+            status: "DELETED",
+            isDeleted: true,
+            deletedAt: new Date(),
+        },
+    });
+};
+
 export const UserService = {
     createAdmin,
     getAllUsers,
     updateUserStatus,
     getMe,
     updateMe,
+    getUserById,
+    updateUserProfileById,
+    updateUserById,
+    deleteUserById,
 };
