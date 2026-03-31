@@ -106,4 +106,9 @@ export type Purchase = Prisma.PurchaseModel;
  *
  */
 export type Subscription = Prisma.SubscriptionModel;
+/**
+ * Model SubscriptionPlanSetting
+ *
+ */
+export type SubscriptionPlanSetting = Prisma.SubscriptionPlanSettingModel;
 //# sourceMappingURL=client.d.ts.map

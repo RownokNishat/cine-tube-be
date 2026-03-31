@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { PricingType, SubscriptionPlan, SubscriptionStatus, PurchaseType } from "../../../generated/enums.js";
+import { PricingType, PurchaseStatus, PurchaseType, SubscriptionPlan, SubscriptionStatus } from "../../../generated/enums.js";
 export declare const PurchaseService: {
     createCheckoutSession: (userId: string, mediaId: string, purchaseType?: "PURCHASE" | "RENTAL", rentalDays?: number) => Promise<{
         checkoutUrl: string | null;
@@ -75,7 +75,7 @@ export declare const PurchaseService: {
                 isEditorPick: boolean;
                 mediaType: import("../../../generated/enums.js").MediaType;
             };
-            status: import("../../../generated/enums.js").PurchaseStatus;
+            status: PurchaseStatus;
             id: string;
             createdAt: Date;
             updatedAt: Date;
@@ -113,7 +113,7 @@ export declare const PurchaseService: {
             revenue: number;
         }[];
         purchaseStatusBreakdown: {
-            status: import("../../../generated/enums.js").PurchaseStatus;
+            status: PurchaseStatus;
             count: number;
         }[];
         subscriptionStatusBreakdown: {
@@ -121,14 +121,17 @@ export declare const PurchaseService: {
             count: number;
         }[];
     }>;
-    getPaymentTransactions: ({ page, limit }: {
+    getPaymentTransactions: ({ page, limit, searchTerm, type, status, }: {
         page?: number;
         limit?: number;
+        searchTerm?: string;
+        type?: string;
+        status?: string;
     }) => Promise<{
         data: ({
             id: string;
             type: string;
-            status: import("../../../generated/enums.js").PurchaseStatus;
+            status: PurchaseStatus;
             amount: number;
             currency: string;
             createdAt: Date;

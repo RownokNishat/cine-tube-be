@@ -55,7 +55,8 @@ export const ModelName = {
     Watchlist: 'Watchlist',
     ContactMessage: 'ContactMessage',
     Purchase: 'Purchase',
-    Subscription: 'Subscription'
+    Subscription: 'Subscription',
+    SubscriptionPlanSetting: 'SubscriptionPlanSetting'
 };
 /*
  * Enums
@@ -230,6 +231,18 @@ export const SubscriptionScalarFieldEnum = {
     stripeCustomerId: 'stripeCustomerId',
     stripePaymentId: 'stripePaymentId',
     amount: 'amount',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const SubscriptionPlanSettingScalarFieldEnum = {
+    id: 'id',
+    plan: 'plan',
+    label: 'label',
+    price: 'price',
+    durationDays: 'durationDays',
+    currency: 'currency',
+    features: 'features',
+    isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

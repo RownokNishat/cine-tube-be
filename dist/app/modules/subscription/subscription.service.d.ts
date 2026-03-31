@@ -1,7 +1,7 @@
 import { SubscriptionPlan, SubscriptionStatus } from "../../../generated/enums.js";
 export declare const SubscriptionService: {
-    getSubscriptionPlans: () => Promise<({
-        plan: "FREE";
+    getSubscriptionPlans: () => Promise<{
+        plan: SubscriptionPlan;
         price: number;
         amount: number;
         duration: string;
@@ -9,8 +9,16 @@ export declare const SubscriptionService: {
         label: string;
         currency: string;
         features: string[];
-    } | {
-        plan: "MONTHLY";
+        isActive: boolean;
+    }[]>;
+    updateSubscriptionPlan: (plan: "FREE" | "MONTHLY" | "YEARLY", payload: {
+        label?: string;
+        price?: number;
+        durationDays?: number;
+        features?: string[];
+        isActive?: boolean;
+    }) => Promise<{
+        plan: SubscriptionPlan;
         price: number;
         amount: number;
         duration: string;
@@ -18,16 +26,8 @@ export declare const SubscriptionService: {
         label: string;
         currency: string;
         features: string[];
-    } | {
-        plan: "YEARLY";
-        price: number;
-        amount: number;
-        duration: string;
-        durationDays: number;
-        label: string;
-        currency: string;
-        features: string[];
-    })[]>;
+        isActive: boolean;
+    }>;
     getMySubscription: (userId: string) => Promise<{
         plan: "FREE";
         status: "ACTIVE";

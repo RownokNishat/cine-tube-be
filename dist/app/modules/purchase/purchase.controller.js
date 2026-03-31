@@ -84,9 +84,16 @@ const getDashboardAnalytics = catchAsync(async (req, res) => {
     });
 });
 const getPaymentTransactions = catchAsync(async (req, res) => {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 20;
-    const result = await PurchaseService.getPaymentTransactions({ page, limit });
+    const query = req.query;
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 20;
+    const result = await PurchaseService.getPaymentTransactions({
+        page,
+        limit,
+        ...(query.searchTerm ? { searchTerm: query.searchTerm } : {}),
+        ...(query.type ? { type: query.type } : {}),
+        ...(query.status ? { status: query.status } : {}),
+    });
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,

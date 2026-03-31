@@ -302,6 +302,17 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
     get subscription(): Prisma.SubscriptionDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
+    /**
+     * `prisma.subscriptionPlanSetting`: Exposes CRUD operations for the **SubscriptionPlanSetting** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more SubscriptionPlanSettings
+      * const subscriptionPlanSettings = await prisma.subscriptionPlanSetting.findMany()
+      * ```
+      */
+    get subscriptionPlanSetting(): Prisma.SubscriptionPlanSettingDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
 }
 export declare function getPrismaClientClass(): PrismaClientConstructor;
 //# sourceMappingURL=class.d.ts.map

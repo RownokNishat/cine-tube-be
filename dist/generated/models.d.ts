@@ -15,5 +15,6 @@ export type * from './models/Watchlist';
 export type * from './models/ContactMessage';
 export type * from './models/Purchase';
 export type * from './models/Subscription';
+export type * from './models/SubscriptionPlanSetting';
 export type * from './commonInputTypes';
 //# sourceMappingURL=models.d.ts.map

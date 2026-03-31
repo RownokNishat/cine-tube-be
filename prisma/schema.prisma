@@ -363,3 +363,18 @@ model Subscription {
 
   @@map("subscription")
 }
+
+model SubscriptionPlanSetting {
+  id           String           @id @default(uuid())
+  plan         SubscriptionPlan @unique
+  label        String
+  price        Float
+  durationDays Int              @default(0)
+  currency     String           @default("usd")
+  features     String[]
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@map("subscription_plan_setting")
+}

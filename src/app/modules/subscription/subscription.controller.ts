@@ -5,6 +5,8 @@ import { catchAsync } from "../../shared/catchAsync.js";
 import { sendResponse } from "../../shared/sendResponse.js";
 import { SubscriptionService } from "./subscription.service.js";
 
+type SubscriptionPlanParam = "FREE" | "MONTHLY" | "YEARLY";
+
 const getSubscriptionPlans = catchAsync(async (_req: Request, res: Response) => {
     const result = await SubscriptionService.getSubscriptionPlans();
     sendResponse(res, {
@@ -41,6 +43,24 @@ const createCheckoutSession = catchAsync(async (req: Request, res: Response) => 
     });
 });
 
+const updateSubscriptionPlan = catchAsync(async (req: Request, res: Response) => {
+    const plan = req.params.plan as SubscriptionPlanParam;
+    const result = await SubscriptionService.updateSubscriptionPlan(plan, req.body as {
+        label?: string;
+        price?: number;
+        durationDays?: number;
+        features?: string[];
+        isActive?: boolean;
+    });
+
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Subscription plan updated successfully",
+        data: result,
+    });
+});
+
 const cancelSubscription = catchAsync(async (req: Request, res: Response) => {
     const result = await SubscriptionService.cancelSubscription(req.user.userId);
     sendResponse(res, {
@@ -53,6 +73,7 @@ const cancelSubscription = catchAsync(async (req: Request, res: Response) => {
 
 export const SubscriptionController = {
     getSubscriptionPlans,
+    updateSubscriptionPlan,
     getMySubscription,
     createCheckoutSession,
     cancelSubscription,

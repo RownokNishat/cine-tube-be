@@ -4,7 +4,7 @@ import { stripe } from "../../config/stripe.config.js";
 import { envVars } from "../../config/env.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
-import { PricingType, SubscriptionPlan, SubscriptionStatus, PurchaseType } from "../../../generated/enums.js";
+import { PricingType, PurchaseStatus, PurchaseType, SubscriptionPlan, SubscriptionStatus } from "../../../generated/enums.js";
 
 // Rental pricing configuration
 const RENTAL_PRICES: Record<string, number> = {
@@ -397,31 +397,52 @@ const getDashboardAnalytics = async (periodDays = 30) => {
     };
 };
 
-const getPaymentTransactions = async ({ page = 1, limit = 20 }: { page?: number; limit?: number }) => {
+const getPaymentTransactions = async ({
+    page = 1,
+    limit = 20,
+    searchTerm,
+    type,
+    status,
+}: {
+    page?: number;
+    limit?: number;
+    searchTerm?: string;
+    type?: string;
+    status?: string;
+}) => {
     const safePage = Math.max(page, 1);
     const safeLimit = Math.min(Math.max(limit, 1), 100);
     const skip = (safePage - 1) * safeLimit;
+    const normalizedSearchTerm = searchTerm?.trim().toLowerCase();
+    const normalizedType = type?.trim().toUpperCase();
+    const normalizedStatus = status?.trim().toUpperCase();
 
-    const [purchases, subscriptions, totalPurchases, totalSubscriptions] = await Promise.all([
-        prisma.purchase.findMany({
-            skip,
-            take: safeLimit,
-            orderBy: { createdAt: "desc" },
-            include: {
-                user: { select: { id: true, name: true, email: true } },
-                media: { select: { id: true, title: true } },
-            },
-        }),
-        prisma.subscription.findMany({
-            skip,
-            take: safeLimit,
-            orderBy: { createdAt: "desc" },
-            include: {
-                user: { select: { id: true, name: true, email: true } },
-            },
-        }),
-        prisma.purchase.count(),
-        prisma.subscription.count(),
+    const includePurchases = !normalizedType || normalizedType === "PURCHASE";
+    const includeSubscriptions = !normalizedType || normalizedType === "SUBSCRIPTION";
+
+    const purchaseWhere = normalizedStatus ? { status: normalizedStatus as PurchaseStatus } : {};
+    const subscriptionWhere = normalizedStatus ? { status: normalizedStatus as SubscriptionStatus } : {};
+
+    const [purchases, subscriptions] = await Promise.all([
+        includePurchases
+            ? prisma.purchase.findMany({
+                  where: purchaseWhere,
+                  orderBy: { createdAt: "desc" },
+                  include: {
+                      user: { select: { id: true, name: true, email: true } },
+                      media: { select: { id: true, title: true } },
+                  },
+              })
+            : Promise.resolve([]),
+        includeSubscriptions
+            ? prisma.subscription.findMany({
+                  where: subscriptionWhere,
+                  orderBy: { createdAt: "desc" },
+                  include: {
+                      user: { select: { id: true, name: true, email: true } },
+                  },
+              })
+            : Promise.resolve([]),
     ]);
 
     const purchaseTransactions = purchases.map((purchase) => ({
@@ -448,16 +469,42 @@ const getPaymentTransactions = async ({ page = 1, limit = 20 }: { page?: number;
     }));
 
     const merged = [...purchaseTransactions, ...subscriptionTransactions]
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-        .slice(0, safeLimit);
+        .filter((transaction) => {
+            if (!normalizedSearchTerm) {
+                return true;
+            }
+
+            const mediaTitle = "media" in transaction ? transaction.media?.title : undefined;
+            const plan = "plan" in transaction ? transaction.plan : undefined;
+            const purchaseType = "purchaseType" in transaction ? transaction.purchaseType : undefined;
+
+            const haystack = [
+                transaction.user?.name,
+                transaction.user?.email,
+                mediaTitle,
+                plan,
+                transaction.type,
+                purchaseType,
+                transaction.status,
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+
+            return haystack.includes(normalizedSearchTerm);
+        })
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    const total = merged.length;
+    const data = merged.slice(skip, skip + safeLimit);
 
     return {
-        data: merged,
+        data,
         meta: {
             page: safePage,
             limit: safeLimit,
-            total: totalPurchases + totalSubscriptions,
-            totalPages: Math.ceil((totalPurchases + totalSubscriptions) / safeLimit),
+            total,
+            totalPages: Math.ceil(total / safeLimit),
         },
     };
 };

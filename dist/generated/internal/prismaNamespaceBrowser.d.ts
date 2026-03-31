@@ -43,6 +43,7 @@ export declare const ModelName: {
     readonly ContactMessage: "ContactMessage";
     readonly Purchase: "Purchase";
     readonly Subscription: "Subscription";
+    readonly SubscriptionPlanSetting: "SubscriptionPlanSetting";
 };
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
 export declare const TransactionIsolationLevel: {
@@ -236,6 +237,19 @@ export declare const SubscriptionScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum];
+export declare const SubscriptionPlanSettingScalarFieldEnum: {
+    readonly id: "id";
+    readonly plan: "plan";
+    readonly label: "label";
+    readonly price: "price";
+    readonly durationDays: "durationDays";
+    readonly currency: "currency";
+    readonly features: "features";
+    readonly isActive: "isActive";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type SubscriptionPlanSettingScalarFieldEnum = (typeof SubscriptionPlanSettingScalarFieldEnum)[keyof typeof SubscriptionPlanSettingScalarFieldEnum];
 export declare const SortOrder: {
     readonly asc: "asc";
     readonly desc: "desc";

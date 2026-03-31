@@ -248,6 +248,7 @@ export declare const ModelName: {
     readonly ContactMessage: "ContactMessage";
     readonly Purchase: "Purchase";
     readonly Subscription: "Subscription";
+    readonly SubscriptionPlanSetting: "SubscriptionPlanSetting";
 };
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
 export interface TypeMapCb<GlobalOmitOptions = {}> extends runtime.Types.Utils.Fn<{
@@ -260,7 +261,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         omit: GlobalOmitOptions;
     };
     meta: {
-        modelProps: "user" | "session" | "account" | "verification" | "userProfile" | "adminProfile" | "genre" | "media" | "mediaGenre" | "review" | "reviewLike" | "reviewComment" | "commentLike" | "watchlist" | "contactMessage" | "purchase" | "subscription";
+        modelProps: "user" | "session" | "account" | "verification" | "userProfile" | "adminProfile" | "genre" | "media" | "mediaGenre" | "review" | "reviewLike" | "reviewComment" | "commentLike" | "watchlist" | "contactMessage" | "purchase" | "subscription" | "subscriptionPlanSetting";
         txIsolationLevel: TransactionIsolationLevel;
     };
     model: {
@@ -1522,6 +1523,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
                 };
             };
         };
+        SubscriptionPlanSetting: {
+            payload: Prisma.$SubscriptionPlanSettingPayload<ExtArgs>;
+            fields: Prisma.SubscriptionPlanSettingFieldRefs;
+            operations: {
+                findUnique: {
+                    args: Prisma.SubscriptionPlanSettingFindUniqueArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload> | null;
+                };
+                findUniqueOrThrow: {
+                    args: Prisma.SubscriptionPlanSettingFindUniqueOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>;
+                };
+                findFirst: {
+                    args: Prisma.SubscriptionPlanSettingFindFirstArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload> | null;
+                };
+                findFirstOrThrow: {
+                    args: Prisma.SubscriptionPlanSettingFindFirstOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>;
+                };
+                findMany: {
+                    args: Prisma.SubscriptionPlanSettingFindManyArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>[];
+                };
+                create: {
+                    args: Prisma.SubscriptionPlanSettingCreateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>;
+                };
+                createMany: {
+                    args: Prisma.SubscriptionPlanSettingCreateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                createManyAndReturn: {
+                    args: Prisma.SubscriptionPlanSettingCreateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>[];
+                };
+                delete: {
+                    args: Prisma.SubscriptionPlanSettingDeleteArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>;
+                };
+                update: {
+                    args: Prisma.SubscriptionPlanSettingUpdateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>;
+                };
+                deleteMany: {
+                    args: Prisma.SubscriptionPlanSettingDeleteManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateMany: {
+                    args: Prisma.SubscriptionPlanSettingUpdateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateManyAndReturn: {
+                    args: Prisma.SubscriptionPlanSettingUpdateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>[];
+                };
+                upsert: {
+                    args: Prisma.SubscriptionPlanSettingUpsertArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPlanSettingPayload>;
+                };
+                aggregate: {
+                    args: Prisma.SubscriptionPlanSettingAggregateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.AggregateSubscriptionPlanSetting>;
+                };
+                groupBy: {
+                    args: Prisma.SubscriptionPlanSettingGroupByArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.SubscriptionPlanSettingGroupByOutputType>[];
+                };
+                count: {
+                    args: Prisma.SubscriptionPlanSettingCountArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.SubscriptionPlanSettingCountAggregateOutputType> | number;
+                };
+            };
+        };
     };
 } & {
     other: {
@@ -1740,6 +1815,19 @@ export declare const SubscriptionScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum];
+export declare const SubscriptionPlanSettingScalarFieldEnum: {
+    readonly id: "id";
+    readonly plan: "plan";
+    readonly label: "label";
+    readonly price: "price";
+    readonly durationDays: "durationDays";
+    readonly currency: "currency";
+    readonly features: "features";
+    readonly isActive: "isActive";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type SubscriptionPlanSettingScalarFieldEnum = (typeof SubscriptionPlanSettingScalarFieldEnum)[keyof typeof SubscriptionPlanSettingScalarFieldEnum];
 export declare const SortOrder: {
     readonly asc: "asc";
     readonly desc: "desc";
@@ -1985,6 +2073,7 @@ export type GlobalOmitConfig = {
     contactMessage?: Prisma.ContactMessageOmit;
     purchase?: Prisma.PurchaseOmit;
     subscription?: Prisma.SubscriptionOmit;
+    subscriptionPlanSetting?: Prisma.SubscriptionPlanSettingOmit;
 };
 export type LogLevel = 'info' | 'query' | 'warn' | 'error';
 export type LogDefinition = {

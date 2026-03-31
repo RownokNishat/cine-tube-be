@@ -67,7 +67,8 @@ export const ModelName = {
   Watchlist: 'Watchlist',
   ContactMessage: 'ContactMessage',
   Purchase: 'Purchase',
-  Subscription: 'Subscription'
+  Subscription: 'Subscription',
+  SubscriptionPlanSetting: 'SubscriptionPlanSetting'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -319,6 +320,22 @@ export const SubscriptionScalarFieldEnum = {
 } as const
 
 export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+export const SubscriptionPlanSettingScalarFieldEnum = {
+  id: 'id',
+  plan: 'plan',
+  label: 'label',
+  price: 'price',
+  durationDays: 'durationDays',
+  currency: 'currency',
+  features: 'features',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionPlanSettingScalarFieldEnum = (typeof SubscriptionPlanSettingScalarFieldEnum)[keyof typeof SubscriptionPlanSettingScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -34,6 +34,16 @@ const createCheckoutSession = catchAsync(async (req, res) => {
         data: result,
     });
 });
+const updateSubscriptionPlan = catchAsync(async (req, res) => {
+    const plan = req.params.plan;
+    const result = await SubscriptionService.updateSubscriptionPlan(plan, req.body);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Subscription plan updated successfully",
+        data: result,
+    });
+});
 const cancelSubscription = catchAsync(async (req, res) => {
     const result = await SubscriptionService.cancelSubscription(req.user.userId);
     sendResponse(res, {
@@ -45,6 +55,7 @@ const cancelSubscription = catchAsync(async (req, res) => {
 });
 export const SubscriptionController = {
     getSubscriptionPlans,
+    updateSubscriptionPlan,
     getMySubscription,
     createCheckoutSession,
     cancelSubscription,

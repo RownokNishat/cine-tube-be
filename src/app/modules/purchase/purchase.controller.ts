@@ -105,10 +105,23 @@ const getDashboardAnalytics = catchAsync(async (req: Request, res: Response) => 
 });
 
 const getPaymentTransactions = catchAsync(async (req: Request, res: Response) => {
-    const page = Number((req.query as { page?: string }).page) || 1;
-    const limit = Number((req.query as { limit?: string }).limit) || 20;
+    const query = req.query as {
+        page?: string;
+        limit?: string;
+        searchTerm?: string;
+        type?: string;
+        status?: string;
+    };
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 20;
 
-    const result = await PurchaseService.getPaymentTransactions({ page, limit });
+    const result = await PurchaseService.getPaymentTransactions({
+        page,
+        limit,
+        ...(query.searchTerm ? { searchTerm: query.searchTerm } : {}),
+        ...(query.type ? { type: query.type } : {}),
+        ...(query.status ? { status: query.status } : {}),
+    });
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,

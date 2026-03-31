@@ -4,12 +4,12 @@ import { envVars } from "../../config/env.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
 import { SubscriptionPlan, SubscriptionStatus } from "../../../generated/enums.js";
-const PLAN_CONFIG = {
+const DEFAULT_PLAN_CONFIG = {
     FREE: { amount: 0, durationDays: 0, label: "Free" },
     MONTHLY: { amount: 9.99, durationDays: 30, label: "Monthly" },
     YEARLY: { amount: 99.99, durationDays: 365, label: "Yearly" },
 };
-const PLAN_FEATURES = {
+const DEFAULT_PLAN_FEATURES = {
     FREE: [
         "Access to free titles",
         "Public reviews and watchlist support",
@@ -26,39 +26,84 @@ const PLAN_FEATURES = {
         "Best value annual billing",
     ],
 };
+const PLAN_ORDER = [
+    SubscriptionPlan.FREE,
+    SubscriptionPlan.MONTHLY,
+    SubscriptionPlan.YEARLY,
+];
+const ensureSubscriptionPlanSettings = async () => {
+    await Promise.all(PLAN_ORDER.map((plan) => prisma.subscriptionPlanSetting.upsert({
+        where: { plan },
+        update: {},
+        create: {
+            plan,
+            label: DEFAULT_PLAN_CONFIG[plan].label,
+            price: DEFAULT_PLAN_CONFIG[plan].amount,
+            durationDays: DEFAULT_PLAN_CONFIG[plan].durationDays,
+            currency: "usd",
+            features: DEFAULT_PLAN_FEATURES[plan],
+            isActive: true,
+        },
+    })));
+    return prisma.subscriptionPlanSetting.findMany({
+        orderBy: { createdAt: "asc" },
+    });
+};
+const mapPlanSettingToResponse = (setting) => ({
+    plan: setting.plan,
+    price: setting.price,
+    amount: setting.price,
+    duration: setting.durationDays > 0 ? `${setting.durationDays} days` : "Lifetime",
+    durationDays: setting.durationDays,
+    label: setting.label,
+    currency: setting.currency,
+    features: setting.features,
+    isActive: setting.isActive,
+});
+const getPlanSettingOrThrow = async (plan) => {
+    const settings = await ensureSubscriptionPlanSettings();
+    const setting = settings.find((item) => item.plan === plan);
+    if (!setting) {
+        throw new AppError(httpStatus.NOT_FOUND, "Subscription plan not found");
+    }
+    return setting;
+};
 const getSubscriptionPlans = async () => {
-    return [
-        {
-            plan: SubscriptionPlan.FREE,
-            price: PLAN_CONFIG.FREE.amount,
-            amount: PLAN_CONFIG.FREE.amount,
-            duration: "Lifetime",
-            durationDays: PLAN_CONFIG.FREE.durationDays,
-            label: PLAN_CONFIG.FREE.label,
-            currency: "usd",
-            features: PLAN_FEATURES.FREE,
+    const settings = await ensureSubscriptionPlanSettings();
+    return PLAN_ORDER
+        .map((plan) => settings.find((item) => item.plan === plan))
+        .filter((setting) => Boolean(setting))
+        .map(mapPlanSettingToResponse);
+};
+const updateSubscriptionPlan = async (plan, payload) => {
+    if (!Object.keys(payload).length) {
+        throw new AppError(httpStatus.BAD_REQUEST, "No plan changes provided");
+    }
+    const currentSetting = await getPlanSettingOrThrow(plan);
+    const nextDurationDays = payload.durationDays ?? currentSetting.durationDays;
+    const nextPrice = payload.price ?? currentSetting.price;
+    if (plan === SubscriptionPlan.FREE) {
+        if (nextPrice !== 0) {
+            throw new AppError(httpStatus.BAD_REQUEST, "FREE plan price must remain 0");
+        }
+        if (nextDurationDays !== 0) {
+            throw new AppError(httpStatus.BAD_REQUEST, "FREE plan duration must remain 0 days");
+        }
+    }
+    if (plan !== SubscriptionPlan.FREE && nextDurationDays <= 0) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Paid plans must have a duration greater than 0 days");
+    }
+    const updated = await prisma.subscriptionPlanSetting.update({
+        where: { plan: plan },
+        data: {
+            ...(payload.label !== undefined ? { label: payload.label.trim() } : {}),
+            ...(payload.price !== undefined ? { price: payload.price } : {}),
+            ...(payload.durationDays !== undefined ? { durationDays: payload.durationDays } : {}),
+            ...(payload.features !== undefined ? { features: payload.features } : {}),
+            ...(payload.isActive !== undefined ? { isActive: payload.isActive } : {}),
         },
-        {
-            plan: SubscriptionPlan.MONTHLY,
-            price: PLAN_CONFIG.MONTHLY.amount,
-            amount: PLAN_CONFIG.MONTHLY.amount,
-            duration: "30 days",
-            durationDays: PLAN_CONFIG.MONTHLY.durationDays,
-            label: PLAN_CONFIG.MONTHLY.label,
-            currency: "usd",
-            features: PLAN_FEATURES.MONTHLY,
-        },
-        {
-            plan: SubscriptionPlan.YEARLY,
-            price: PLAN_CONFIG.YEARLY.amount,
-            amount: PLAN_CONFIG.YEARLY.amount,
-            duration: "365 days",
-            durationDays: PLAN_CONFIG.YEARLY.durationDays,
-            label: PLAN_CONFIG.YEARLY.label,
-            currency: "usd",
-            features: PLAN_FEATURES.YEARLY,
-        },
-    ];
+    });
+    return mapPlanSettingToResponse(updated);
 };
 const getMySubscription = async (userId) => {
     const sub = await prisma.subscription.findFirst({
@@ -93,8 +138,11 @@ const createCheckoutSession = async (userId, plan) => {
     if (!user) {
         throw new AppError(httpStatus.NOT_FOUND, "User not found");
     }
-    const config = PLAN_CONFIG[plan];
-    const amountInCents = Math.round(config.amount * 100);
+    const config = await getPlanSettingOrThrow(plan);
+    const amountInCents = Math.round(config.price * 100);
+    if (!config.isActive) {
+        throw new AppError(httpStatus.BAD_REQUEST, "This subscription plan is currently unavailable");
+    }
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
@@ -116,7 +164,7 @@ const createCheckoutSession = async (userId, plan) => {
             userId,
             plan,
             durationDays: String(config.durationDays),
-            amount: String(config.amount),
+            amount: String(config.price),
         },
         success_url: `${envVars.FRONTEND_URL}/dashboard/subscriptions?success=true&session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${envVars.FRONTEND_URL}/dashboard/subscriptions?canceled=true`,
@@ -145,6 +193,7 @@ const cancelSubscription = async (userId) => {
 };
 export const SubscriptionService = {
     getSubscriptionPlans,
+    updateSubscriptionPlan,
     getMySubscription,
     createCheckoutSession,
     cancelSubscription,
