@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
+import { Role } from "../../../generated/enums.js";
 import { envVars } from "../../config/env.js";
 import { CookieUtils } from "../../utils/cookie.js";
 import { jwtUtils } from "../../utils/jwt.js";
@@ -8,23 +9,31 @@ import { sendResponse } from "../../shared/sendResponse.js";
 import { IQueryParams } from "../../interfaces/query.interface.js";
 import { ReviewService } from "./review.service.js";
 
-const resolveOptionalUserId = (req: Request) => {
+const resolveOptionalViewer = (req: Request): { userId?: string; role?: Role } => {
     if (req.user?.userId) {
-        return req.user.userId;
+        return {
+            userId: req.user.userId,
+            role: req.user.role,
+        };
     }
 
     const accessToken = CookieUtils.getCookie(req, "accessToken");
     if (!accessToken) {
-        return undefined;
+        return {};
     }
 
     const verifiedToken = jwtUtils.verifyToken(accessToken, envVars.ACCESS_TOKEN_SECRET);
     if (!verifiedToken.success || !verifiedToken.data?.userId || typeof verifiedToken.data.userId !== "string") {
-        return undefined;
+        return {};
     }
 
-    return verifiedToken.data.userId;
+    return {
+        userId: verifiedToken.data.userId,
+        role: verifiedToken.data.role as Role,
+    };
 };
+
+const resolveOptionalUserId = (req: Request) => resolveOptionalViewer(req).userId;
 
 // ==================== REVIEWS ====================
 
@@ -212,12 +221,14 @@ const addComment = catchAsync(async (req: Request, res: Response) => {
 
 const getReviewComments = catchAsync(async (req: Request, res: Response) => {
     const reviewId = req.params.reviewId as string;
-    const currentUserId = resolveOptionalUserId(req);
+    const viewer = resolveOptionalViewer(req);
+    const includeUnpublished = viewer.role === Role.ADMIN || viewer.role === Role.SUPER_ADMIN;
 
     const result = await ReviewService.getReviewComments(
         reviewId,
         req.query as unknown as IQueryParams,
-        currentUserId,
+        viewer.userId,
+        { allowAllStatuses: includeUnpublished },
     );
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,

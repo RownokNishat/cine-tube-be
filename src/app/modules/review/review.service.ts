@@ -415,11 +415,18 @@ const addComment = async (userId: string, reviewId: string, content: string) => 
     return comment;
 };
 
-const getReviewComments = async (reviewId: string, queryParams: IQueryParams, currentUserId?: string) => {
+const getReviewComments = async (
+    reviewId: string,
+    queryParams: IQueryParams,
+    currentUserId?: string,
+    options?: { allowAllStatuses?: boolean },
+) => {
     const review = await prisma.review.findUnique({ where: { id: reviewId } });
     if (!review) {
         throw new AppError(httpStatus.NOT_FOUND, "Review not found");
     }
+
+    const allowAllStatuses = options?.allowAllStatuses === true;
 
     const builder = new QueryBuilder(
         prisma.reviewComment as unknown as {
@@ -435,7 +442,11 @@ const getReviewComments = async (reviewId: string, queryParams: IQueryParams, cu
 
     const result = await builder
         .search()
-        .where({ reviewId, parentId: null, status: CommentStatus.PUBLISHED }) // Only published top-level comments
+        .where(
+            allowAllStatuses
+                ? { reviewId, parentId: null }
+                : { reviewId, parentId: null, status: CommentStatus.PUBLISHED },
+        )
         .sort()
         .paginate()
         .include({
@@ -444,7 +455,7 @@ const getReviewComments = async (reviewId: string, queryParams: IQueryParams, cu
             },
             replies: {
                 orderBy: { createdAt: "asc" },
-                where: { status: CommentStatus.PUBLISHED },
+                ...(allowAllStatuses ? {} : { where: { status: CommentStatus.PUBLISHED } }),
                 include: {
                     user: {
                         select: { id: true, name: true, image: true },
