@@ -1,24 +1,32 @@
 import httpStatus from "http-status";
+import { Role } from "../../../generated/enums.js";
 import { envVars } from "../../config/env.js";
 import { CookieUtils } from "../../utils/cookie.js";
 import { jwtUtils } from "../../utils/jwt.js";
 import { catchAsync } from "../../shared/catchAsync.js";
 import { sendResponse } from "../../shared/sendResponse.js";
 import { ReviewService } from "./review.service.js";
-const resolveOptionalUserId = (req) => {
+const resolveOptionalViewer = (req) => {
     if (req.user?.userId) {
-        return req.user.userId;
+        return {
+            userId: req.user.userId,
+            role: req.user.role,
+        };
     }
     const accessToken = CookieUtils.getCookie(req, "accessToken");
     if (!accessToken) {
-        return undefined;
+        return {};
     }
     const verifiedToken = jwtUtils.verifyToken(accessToken, envVars.ACCESS_TOKEN_SECRET);
     if (!verifiedToken.success || !verifiedToken.data?.userId || typeof verifiedToken.data.userId !== "string") {
-        return undefined;
+        return {};
     }
-    return verifiedToken.data.userId;
+    return {
+        userId: verifiedToken.data.userId,
+        role: verifiedToken.data.role,
+    };
 };
+const resolveOptionalUserId = (req) => resolveOptionalViewer(req).userId;
 // ==================== REVIEWS ====================
 const createReview = catchAsync(async (req, res) => {
     const userId = req.user.userId;
@@ -158,8 +166,9 @@ const addComment = catchAsync(async (req, res) => {
 });
 const getReviewComments = catchAsync(async (req, res) => {
     const reviewId = req.params.reviewId;
-    const currentUserId = resolveOptionalUserId(req);
-    const result = await ReviewService.getReviewComments(reviewId, req.query, currentUserId);
+    const viewer = resolveOptionalViewer(req);
+    const includeUnpublished = viewer.role === Role.ADMIN || viewer.role === Role.SUPER_ADMIN;
+    const result = await ReviewService.getReviewComments(reviewId, req.query, viewer.userId, { allowAllStatuses: includeUnpublished });
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,

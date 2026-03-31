@@ -1,1 +1,1 @@
-{"version":3,"file":"review.controller.d.ts","sourceRoot":"","sources":["../../../../src/app/modules/review/review.controller.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAka5C,eAAO,MAAM,gBAAgB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;CA8B5B,CAAC"}
+{"version":3,"file":"review.controller.d.ts","sourceRoot":"","sources":["../../../../src/app/modules/review/review.controller.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AA6a5C,eAAO,MAAM,gBAAgB;;;;;;;;;;;;;;;;;;;;;;;;;;;;;CA8B5B,CAAC"}

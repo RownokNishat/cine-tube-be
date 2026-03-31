@@ -129,7 +129,9 @@ export declare const ReviewService: {
         reviewId: string;
         parentId: string | null;
     }>;
-    getReviewComments: (reviewId: string, queryParams: IQueryParams, currentUserId?: string) => Promise<{
+    getReviewComments: (reviewId: string, queryParams: IQueryParams, currentUserId?: string, options?: {
+        allowAllStatuses?: boolean;
+    }) => Promise<{
         data: {
             likedByMe: boolean;
             replies: {

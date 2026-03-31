@@ -317,18 +317,21 @@ const addComment = async (userId, reviewId, content) => {
     });
     return comment;
 };
-const getReviewComments = async (reviewId, queryParams, currentUserId) => {
+const getReviewComments = async (reviewId, queryParams, currentUserId, options) => {
     const review = await prisma.review.findUnique({ where: { id: reviewId } });
     if (!review) {
         throw new AppError(httpStatus.NOT_FOUND, "Review not found");
     }
+    const allowAllStatuses = options?.allowAllStatuses === true;
     const builder = new QueryBuilder(prisma.reviewComment, queryParams, {
         searchableFields: ["content"],
         filterableFields: [],
     });
     const result = await builder
         .search()
-        .where({ reviewId, parentId: null, status: CommentStatus.PUBLISHED }) // Only published top-level comments
+        .where(allowAllStatuses
+        ? { reviewId, parentId: null }
+        : { reviewId, parentId: null, status: CommentStatus.PUBLISHED })
         .sort()
         .paginate()
         .include({
@@ -337,7 +340,7 @@ const getReviewComments = async (reviewId, queryParams, currentUserId) => {
         },
         replies: {
             orderBy: { createdAt: "asc" },
-            where: { status: CommentStatus.PUBLISHED },
+            ...(allowAllStatuses ? {} : { where: { status: CommentStatus.PUBLISHED } }),
             include: {
                 user: {
                     select: { id: true, name: true, image: true },
