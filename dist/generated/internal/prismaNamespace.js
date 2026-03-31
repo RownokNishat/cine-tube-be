@@ -36,12 +36,12 @@ export const Sql = runtime.Sql;
 export const Decimal = runtime.Decimal;
 export const getExtensionContext = runtime.Extensions.getExtensionContext;
 /**
- * Prisma Client JS version: 7.4.2
- * Query Engine version: 94a226be1cf2967af2541cca5529f0f7ba866919
+ * Prisma Client JS version: 7.6.0
+ * Query Engine version: 75cbdc1eb7150937890ad5465d861175c6624711
  */
 export const prismaVersion = {
-    client: "7.4.2",
-    engine: "94a226be1cf2967af2541cca5529f0f7ba866919"
+    client: "7.6.0",
+    engine: "75cbdc1eb7150937890ad5465d861175c6624711"
 };
 export const NullTypes = {
     DbNull: runtime.NullTypes.DbNull,
@@ -70,7 +70,19 @@ export const ModelName = {
     User: 'User',
     Session: 'Session',
     Account: 'Account',
-    Verification: 'Verification'
+    Verification: 'Verification',
+    UserProfile: 'UserProfile',
+    AdminProfile: 'AdminProfile',
+    Genre: 'Genre',
+    Media: 'Media',
+    MediaGenre: 'MediaGenre',
+    Review: 'Review',
+    ReviewLike: 'ReviewLike',
+    ReviewComment: 'ReviewComment',
+    CommentLike: 'CommentLike',
+    Watchlist: 'Watchlist',
+    Purchase: 'Purchase',
+    Subscription: 'Subscription'
 };
 /**
  * Enums
@@ -86,6 +98,11 @@ export const UserScalarFieldEnum = {
     name: 'name',
     email: 'email',
     emailVerified: 'emailVerified',
+    role: 'role',
+    status: 'status',
+    needPasswordChange: 'needPasswordChange',
+    isDeleted: 'isDeleted',
+    deletedAt: 'deletedAt',
     image: 'image',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -120,6 +137,113 @@ export const VerificationScalarFieldEnum = {
     identifier: 'identifier',
     value: 'value',
     expiresAt: 'expiresAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const UserProfileScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    bio: 'bio',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const AdminProfileScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const GenreScalarFieldEnum = {
+    id: 'id',
+    name: 'name',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const MediaScalarFieldEnum = {
+    id: 'id',
+    title: 'title',
+    synopsis: 'synopsis',
+    releaseYear: 'releaseYear',
+    director: 'director',
+    cast: 'cast',
+    streamingPlatform: 'streamingPlatform',
+    pricingType: 'pricingType',
+    price: 'price',
+    streamingLink: 'streamingLink',
+    posterUrl: 'posterUrl',
+    trailerUrl: 'trailerUrl',
+    isFeatured: 'isFeatured',
+    isEditorPick: 'isEditorPick',
+    mediaType: 'mediaType',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const MediaGenreScalarFieldEnum = {
+    mediaId: 'mediaId',
+    genreId: 'genreId'
+};
+export const ReviewScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    mediaId: 'mediaId',
+    rating: 'rating',
+    content: 'content',
+    isSpoiler: 'isSpoiler',
+    tags: 'tags',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const ReviewLikeScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    reviewId: 'reviewId',
+    createdAt: 'createdAt'
+};
+export const ReviewCommentScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    reviewId: 'reviewId',
+    content: 'content',
+    parentId: 'parentId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const CommentLikeScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    commentId: 'commentId',
+    createdAt: 'createdAt'
+};
+export const WatchlistScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    mediaId: 'mediaId',
+    createdAt: 'createdAt'
+};
+export const PurchaseScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    mediaId: 'mediaId',
+    stripeSessionId: 'stripeSessionId',
+    stripePaymentId: 'stripePaymentId',
+    amount: 'amount',
+    currency: 'currency',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const SubscriptionScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    plan: 'plan',
+    status: 'status',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    stripeCustomerId: 'stripeCustomerId',
+    stripePaymentId: 'stripePaymentId',
+    amount: 'amount',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

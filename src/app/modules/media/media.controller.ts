@@ -6,6 +6,24 @@ import { IQueryParams } from "../../interfaces/query.interface.js";
 import { ICreateMediaPayload, IUpdateMediaPayload } from "./media.interface.js";
 import { MediaService } from "./media.service.js";
 
+const parseOptionalBoolean = (value: unknown) => {
+    if (typeof value === "boolean") {
+        return value;
+    }
+
+    if (typeof value === "string") {
+        if (value === "true") {
+            return true;
+        }
+
+        if (value === "false") {
+            return false;
+        }
+    }
+
+    return undefined;
+};
+
 const getAllMedia = catchAsync(async (req: Request, res: Response) => {
     const result = await MediaService.getAllMedia(req.query as unknown as IQueryParams);
     sendResponse(res, {
@@ -44,6 +62,14 @@ const createMedia = catchAsync(async (req: Request, res: Response) => {
     if (typeof payload.genreIds === "string") {
         payload.genreIds = (payload.genreIds as string).split(",").map((s) => s.trim()).filter(Boolean);
     }
+    const isFeatured = parseOptionalBoolean(payload.isFeatured);
+    if (isFeatured !== undefined) {
+        payload.isFeatured = isFeatured;
+    }
+    const isEditorPick = parseOptionalBoolean(payload.isEditorPick);
+    if (isEditorPick !== undefined) {
+        payload.isEditorPick = isEditorPick;
+    }
 
     const result = await MediaService.createMedia(payload, req.file);
     sendResponse(res, {
@@ -68,6 +94,14 @@ const updateMedia = catchAsync(async (req: Request, res: Response) => {
     }
     if (typeof payload.genreIds === "string") {
         payload.genreIds = (payload.genreIds as string).split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    const isFeatured = parseOptionalBoolean(payload.isFeatured);
+    if (isFeatured !== undefined) {
+        payload.isFeatured = isFeatured;
+    }
+    const isEditorPick = parseOptionalBoolean(payload.isEditorPick);
+    if (isEditorPick !== undefined) {
+        payload.isEditorPick = isEditorPick;
     }
 
     const result = await MediaService.updateMedia(String(req.params.id), payload, req.file);

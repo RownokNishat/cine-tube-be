@@ -192,6 +192,8 @@ model Media {
   streamingLink     String?
   posterUrl         String?
   trailerUrl        String?
+  isFeatured        Boolean     @default(false)
+  isEditorPick      Boolean     @default(false)
   mediaType         MediaType   @default(MOVIE)
   status            MediaStatus @default(DRAFT)
   createdAt         DateTime    @default(now())

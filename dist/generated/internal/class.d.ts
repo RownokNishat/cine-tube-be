@@ -159,6 +159,138 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
     get verification(): Prisma.VerificationDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
+    /**
+     * `prisma.userProfile`: Exposes CRUD operations for the **UserProfile** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more UserProfiles
+      * const userProfiles = await prisma.userProfile.findMany()
+      * ```
+      */
+    get userProfile(): Prisma.UserProfileDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.adminProfile`: Exposes CRUD operations for the **AdminProfile** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more AdminProfiles
+      * const adminProfiles = await prisma.adminProfile.findMany()
+      * ```
+      */
+    get adminProfile(): Prisma.AdminProfileDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.genre`: Exposes CRUD operations for the **Genre** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Genres
+      * const genres = await prisma.genre.findMany()
+      * ```
+      */
+    get genre(): Prisma.GenreDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.media`: Exposes CRUD operations for the **Media** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Media
+      * const media = await prisma.media.findMany()
+      * ```
+      */
+    get media(): Prisma.MediaDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.mediaGenre`: Exposes CRUD operations for the **MediaGenre** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more MediaGenres
+      * const mediaGenres = await prisma.mediaGenre.findMany()
+      * ```
+      */
+    get mediaGenre(): Prisma.MediaGenreDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.review`: Exposes CRUD operations for the **Review** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Reviews
+      * const reviews = await prisma.review.findMany()
+      * ```
+      */
+    get review(): Prisma.ReviewDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.reviewLike`: Exposes CRUD operations for the **ReviewLike** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more ReviewLikes
+      * const reviewLikes = await prisma.reviewLike.findMany()
+      * ```
+      */
+    get reviewLike(): Prisma.ReviewLikeDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.reviewComment`: Exposes CRUD operations for the **ReviewComment** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more ReviewComments
+      * const reviewComments = await prisma.reviewComment.findMany()
+      * ```
+      */
+    get reviewComment(): Prisma.ReviewCommentDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.commentLike`: Exposes CRUD operations for the **CommentLike** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more CommentLikes
+      * const commentLikes = await prisma.commentLike.findMany()
+      * ```
+      */
+    get commentLike(): Prisma.CommentLikeDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.watchlist`: Exposes CRUD operations for the **Watchlist** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Watchlists
+      * const watchlists = await prisma.watchlist.findMany()
+      * ```
+      */
+    get watchlist(): Prisma.WatchlistDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.purchase`: Exposes CRUD operations for the **Purchase** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Purchases
+      * const purchases = await prisma.purchase.findMany()
+      * ```
+      */
+    get purchase(): Prisma.PurchaseDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.subscription`: Exposes CRUD operations for the **Subscription** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more Subscriptions
+      * const subscriptions = await prisma.subscription.findMany()
+      * ```
+      */
+    get subscription(): Prisma.SubscriptionDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
 }
 export declare function getPrismaClientClass(): PrismaClientConstructor;
 //# sourceMappingURL=class.d.ts.map

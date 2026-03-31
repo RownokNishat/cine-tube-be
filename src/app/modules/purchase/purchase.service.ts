@@ -224,9 +224,79 @@ const checkAccessBySession = async (sessionId: string) => {
     };
 };
 
+const getDashboardAnalytics = async () => {
+    // Get total payment count (completed purchases + active subscriptions)
+    const [completedPurchases, activeSubscriptions] = await Promise.all([
+        prisma.purchase.findMany({ where: { status: "COMPLETED" } }),
+        prisma.subscription.findMany({ where: { status: "ACTIVE" } }),
+    ]);
+
+    const paymentCount = completedPurchases.length + activeSubscriptions.length;
+
+    // Get distinct user count who made payments
+    const distinctUserIds = new Set<string>();
+    completedPurchases.forEach((p) => distinctUserIds.add(p.userId));
+    activeSubscriptions.forEach((s) => distinctUserIds.add(s.userId));
+    const userCount = distinctUserIds.size;
+
+    // Get total revenue (sum of completed purchases + active subscription amounts)
+    const purchaseRevenue = completedPurchases.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const subscriptionRevenue = activeSubscriptions.reduce((sum, s) => sum + (s.amount || 0), 0);
+    const totalRevenue = purchaseRevenue + subscriptionRevenue;
+
+    // Get bar chart data (monthly trend)
+    const allPayments = [
+        ...completedPurchases.map((p) => ({
+            date: p.createdAt,
+            type: "purchase" as const,
+        })),
+        ...activeSubscriptions.map((s) => ({
+            date: s.createdAt,
+            type: "subscription" as const,
+        })),
+    ].sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    const monthlyMap = new Map<string, number>();
+    allPayments.forEach((payment) => {
+        const monthKey = new Date(payment.date.getFullYear(), payment.date.getMonth(), 1).toISOString();
+        monthlyMap.set(monthKey, (monthlyMap.get(monthKey) || 0) + 1);
+    });
+
+    const barChartData = Array.from(monthlyMap.entries())
+        .map(([month, count]) => ({ month, count }))
+        .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+
+    // Get pie chart data (status distribution)
+    const pieChartData = [
+        {
+            status: "COMPLETED",
+            count: completedPurchases.length,
+        },
+        {
+            status: "PENDING",
+            count: (await prisma.purchase.count({ where: { status: "PENDING" } })) +
+                (await prisma.subscription.count({ where: { status: "ACTIVE" } })),
+        },
+        {
+            status: "FAILED",
+            count: (await prisma.purchase.count({ where: { status: "FAILED" } })) +
+                (await prisma.subscription.count({ where: { status: "CANCELLED" } })),
+        },
+    ].filter((item) => item.count > 0);
+
+    return {
+        paymentCount,
+        userCount,
+        totalRevenue,
+        barChartData,
+        pieChartData,
+    };
+};
+
 export const PurchaseService = {
     createCheckoutSession,
     getMyPurchases,
     handleWebhookEvent,
     checkAccessBySession,
+    getDashboardAnalytics,
 };

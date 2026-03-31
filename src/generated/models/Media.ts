@@ -47,6 +47,8 @@ export type MediaMinAggregateOutputType = {
   streamingLink: string | null
   posterUrl: string | null
   trailerUrl: string | null
+  isFeatured: boolean | null
+  isEditorPick: boolean | null
   mediaType: $Enums.MediaType | null
   status: $Enums.MediaStatus | null
   createdAt: Date | null
@@ -64,6 +66,8 @@ export type MediaMaxAggregateOutputType = {
   streamingLink: string | null
   posterUrl: string | null
   trailerUrl: string | null
+  isFeatured: boolean | null
+  isEditorPick: boolean | null
   mediaType: $Enums.MediaType | null
   status: $Enums.MediaStatus | null
   createdAt: Date | null
@@ -83,6 +87,8 @@ export type MediaCountAggregateOutputType = {
   streamingLink: number
   posterUrl: number
   trailerUrl: number
+  isFeatured: number
+  isEditorPick: number
   mediaType: number
   status: number
   createdAt: number
@@ -112,6 +118,8 @@ export type MediaMinAggregateInputType = {
   streamingLink?: true
   posterUrl?: true
   trailerUrl?: true
+  isFeatured?: true
+  isEditorPick?: true
   mediaType?: true
   status?: true
   createdAt?: true
@@ -129,6 +137,8 @@ export type MediaMaxAggregateInputType = {
   streamingLink?: true
   posterUrl?: true
   trailerUrl?: true
+  isFeatured?: true
+  isEditorPick?: true
   mediaType?: true
   status?: true
   createdAt?: true
@@ -148,6 +158,8 @@ export type MediaCountAggregateInputType = {
   streamingLink?: true
   posterUrl?: true
   trailerUrl?: true
+  isFeatured?: true
+  isEditorPick?: true
   mediaType?: true
   status?: true
   createdAt?: true
@@ -254,6 +266,8 @@ export type MediaGroupByOutputType = {
   streamingLink: string | null
   posterUrl: string | null
   trailerUrl: string | null
+  isFeatured: boolean
+  isEditorPick: boolean
   mediaType: $Enums.MediaType
   status: $Enums.MediaStatus
   createdAt: Date
@@ -296,6 +310,8 @@ export type MediaWhereInput = {
   streamingLink?: Prisma.StringNullableFilter<"Media"> | string | null
   posterUrl?: Prisma.StringNullableFilter<"Media"> | string | null
   trailerUrl?: Prisma.StringNullableFilter<"Media"> | string | null
+  isFeatured?: Prisma.BoolFilter<"Media"> | boolean
+  isEditorPick?: Prisma.BoolFilter<"Media"> | boolean
   mediaType?: Prisma.EnumMediaTypeFilter<"Media"> | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFilter<"Media"> | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFilter<"Media"> | Date | string
@@ -319,6 +335,8 @@ export type MediaOrderByWithRelationInput = {
   streamingLink?: Prisma.SortOrderInput | Prisma.SortOrder
   posterUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   trailerUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  isFeatured?: Prisma.SortOrder
+  isEditorPick?: Prisma.SortOrder
   mediaType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -345,6 +363,8 @@ export type MediaWhereUniqueInput = Prisma.AtLeast<{
   streamingLink?: Prisma.StringNullableFilter<"Media"> | string | null
   posterUrl?: Prisma.StringNullableFilter<"Media"> | string | null
   trailerUrl?: Prisma.StringNullableFilter<"Media"> | string | null
+  isFeatured?: Prisma.BoolFilter<"Media"> | boolean
+  isEditorPick?: Prisma.BoolFilter<"Media"> | boolean
   mediaType?: Prisma.EnumMediaTypeFilter<"Media"> | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFilter<"Media"> | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFilter<"Media"> | Date | string
@@ -368,6 +388,8 @@ export type MediaOrderByWithAggregationInput = {
   streamingLink?: Prisma.SortOrderInput | Prisma.SortOrder
   posterUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   trailerUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  isFeatured?: Prisma.SortOrder
+  isEditorPick?: Prisma.SortOrder
   mediaType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -395,6 +417,8 @@ export type MediaScalarWhereWithAggregatesInput = {
   streamingLink?: Prisma.StringNullableWithAggregatesFilter<"Media"> | string | null
   posterUrl?: Prisma.StringNullableWithAggregatesFilter<"Media"> | string | null
   trailerUrl?: Prisma.StringNullableWithAggregatesFilter<"Media"> | string | null
+  isFeatured?: Prisma.BoolWithAggregatesFilter<"Media"> | boolean
+  isEditorPick?: Prisma.BoolWithAggregatesFilter<"Media"> | boolean
   mediaType?: Prisma.EnumMediaTypeWithAggregatesFilter<"Media"> | $Enums.MediaType
   status?: Prisma.EnumMediaStatusWithAggregatesFilter<"Media"> | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Media"> | Date | string
@@ -414,6 +438,8 @@ export type MediaCreateInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -437,6 +463,8 @@ export type MediaUncheckedCreateInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -460,6 +488,8 @@ export type MediaUpdateInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -483,6 +513,8 @@ export type MediaUncheckedUpdateInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -506,6 +538,8 @@ export type MediaCreateManyInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -525,6 +559,8 @@ export type MediaUpdateManyMutationInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -544,6 +580,8 @@ export type MediaUncheckedUpdateManyInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -571,6 +609,8 @@ export type MediaCountOrderByAggregateInput = {
   streamingLink?: Prisma.SortOrder
   posterUrl?: Prisma.SortOrder
   trailerUrl?: Prisma.SortOrder
+  isFeatured?: Prisma.SortOrder
+  isEditorPick?: Prisma.SortOrder
   mediaType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -593,6 +633,8 @@ export type MediaMaxOrderByAggregateInput = {
   streamingLink?: Prisma.SortOrder
   posterUrl?: Prisma.SortOrder
   trailerUrl?: Prisma.SortOrder
+  isFeatured?: Prisma.SortOrder
+  isEditorPick?: Prisma.SortOrder
   mediaType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -610,6 +652,8 @@ export type MediaMinOrderByAggregateInput = {
   streamingLink?: Prisma.SortOrder
   posterUrl?: Prisma.SortOrder
   trailerUrl?: Prisma.SortOrder
+  isFeatured?: Prisma.SortOrder
+  isEditorPick?: Prisma.SortOrder
   mediaType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -741,6 +785,8 @@ export type MediaCreateWithoutGenresInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -763,6 +809,8 @@ export type MediaUncheckedCreateWithoutGenresInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -801,6 +849,8 @@ export type MediaUpdateWithoutGenresInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -823,6 +873,8 @@ export type MediaUncheckedUpdateWithoutGenresInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -845,6 +897,8 @@ export type MediaCreateWithoutReviewsInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -867,6 +921,8 @@ export type MediaUncheckedCreateWithoutReviewsInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -905,6 +961,8 @@ export type MediaUpdateWithoutReviewsInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -927,6 +985,8 @@ export type MediaUncheckedUpdateWithoutReviewsInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -949,6 +1009,8 @@ export type MediaCreateWithoutWatchlistEntriesInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -971,6 +1033,8 @@ export type MediaUncheckedCreateWithoutWatchlistEntriesInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -1009,6 +1073,8 @@ export type MediaUpdateWithoutWatchlistEntriesInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1031,6 +1097,8 @@ export type MediaUncheckedUpdateWithoutWatchlistEntriesInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1053,6 +1121,8 @@ export type MediaCreateWithoutPurchasesInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -1075,6 +1145,8 @@ export type MediaUncheckedCreateWithoutPurchasesInput = {
   streamingLink?: string | null
   posterUrl?: string | null
   trailerUrl?: string | null
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: $Enums.MediaType
   status?: $Enums.MediaStatus
   createdAt?: Date | string
@@ -1113,6 +1185,8 @@ export type MediaUpdateWithoutPurchasesInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1135,6 +1209,8 @@ export type MediaUncheckedUpdateWithoutPurchasesInput = {
   streamingLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   posterUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trailerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isEditorPick?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mediaType?: Prisma.EnumMediaTypeFieldUpdateOperationsInput | $Enums.MediaType
   status?: Prisma.EnumMediaStatusFieldUpdateOperationsInput | $Enums.MediaStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1215,6 +1291,8 @@ export type MediaSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   streamingLink?: boolean
   posterUrl?: boolean
   trailerUrl?: boolean
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1239,6 +1317,8 @@ export type MediaSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   streamingLink?: boolean
   posterUrl?: boolean
   trailerUrl?: boolean
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1258,6 +1338,8 @@ export type MediaSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   streamingLink?: boolean
   posterUrl?: boolean
   trailerUrl?: boolean
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: boolean
   status?: boolean
   createdAt?: boolean
@@ -1277,13 +1359,15 @@ export type MediaSelectScalar = {
   streamingLink?: boolean
   posterUrl?: boolean
   trailerUrl?: boolean
+  isFeatured?: boolean
+  isEditorPick?: boolean
   mediaType?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MediaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "synopsis" | "releaseYear" | "director" | "cast" | "streamingPlatform" | "pricingType" | "price" | "streamingLink" | "posterUrl" | "trailerUrl" | "mediaType" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["media"]>
+export type MediaOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "synopsis" | "releaseYear" | "director" | "cast" | "streamingPlatform" | "pricingType" | "price" | "streamingLink" | "posterUrl" | "trailerUrl" | "isFeatured" | "isEditorPick" | "mediaType" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["media"]>
 export type MediaInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   genres?: boolean | Prisma.Media$genresArgs<ExtArgs>
   reviews?: boolean | Prisma.Media$reviewsArgs<ExtArgs>
@@ -1315,6 +1399,8 @@ export type $MediaPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     streamingLink: string | null
     posterUrl: string | null
     trailerUrl: string | null
+    isFeatured: boolean
+    isEditorPick: boolean
     mediaType: $Enums.MediaType
     status: $Enums.MediaStatus
     createdAt: Date
@@ -1758,6 +1844,8 @@ export interface MediaFieldRefs {
   readonly streamingLink: Prisma.FieldRef<"Media", 'String'>
   readonly posterUrl: Prisma.FieldRef<"Media", 'String'>
   readonly trailerUrl: Prisma.FieldRef<"Media", 'String'>
+  readonly isFeatured: Prisma.FieldRef<"Media", 'Boolean'>
+  readonly isEditorPick: Prisma.FieldRef<"Media", 'Boolean'>
   readonly mediaType: Prisma.FieldRef<"Media", 'MediaType'>
   readonly status: Prisma.FieldRef<"Media", 'MediaStatus'>
   readonly createdAt: Prisma.FieldRef<"Media", 'DateTime'>

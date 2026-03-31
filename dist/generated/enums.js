@@ -7,5 +7,47 @@
 *
 * 🟢 You can import this file directly.
 */
-export {};
+export const Role = {
+    USER: 'USER',
+    ADMIN: 'ADMIN',
+    SUPER_ADMIN: 'SUPER_ADMIN'
+};
+export const UserStatus = {
+    ACTIVE: 'ACTIVE',
+    BLOCKED: 'BLOCKED',
+    DELETED: 'DELETED'
+};
+export const MediaType = {
+    MOVIE: 'MOVIE',
+    SERIES: 'SERIES'
+};
+export const MediaStatus = {
+    DRAFT: 'DRAFT',
+    PUBLISHED: 'PUBLISHED'
+};
+export const PricingType = {
+    FREE: 'FREE',
+    PREMIUM: 'PREMIUM'
+};
+export const ReviewStatus = {
+    PENDING: 'PENDING',
+    PUBLISHED: 'PUBLISHED',
+    UNPUBLISHED: 'UNPUBLISHED'
+};
+export const SubscriptionPlan = {
+    FREE: 'FREE',
+    MONTHLY: 'MONTHLY',
+    YEARLY: 'YEARLY'
+};
+export const SubscriptionStatus = {
+    ACTIVE: 'ACTIVE',
+    EXPIRED: 'EXPIRED',
+    CANCELLED: 'CANCELLED'
+};
+export const PurchaseStatus = {
+    PENDING: 'PENDING',
+    COMPLETED: 'COMPLETED',
+    FAILED: 'FAILED',
+    REFUNDED: 'REFUNDED'
+};
 //# sourceMappingURL=enums.js.map

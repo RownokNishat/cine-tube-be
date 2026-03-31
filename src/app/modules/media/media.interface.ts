@@ -10,6 +10,8 @@ export interface ICreateMediaPayload {
     pricingType?: PricingType;
     streamingLink?: string;
     trailerUrl?: string;
+    isFeatured?: boolean;
+    isEditorPick?: boolean;
     mediaType?: MediaType;
     status?: MediaStatus;
     genreIds?: string[];

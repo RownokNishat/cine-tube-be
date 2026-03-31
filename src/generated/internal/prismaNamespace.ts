@@ -1749,6 +1749,8 @@ export const MediaScalarFieldEnum = {
   streamingLink: 'streamingLink',
   posterUrl: 'posterUrl',
   trailerUrl: 'trailerUrl',
+  isFeatured: 'isFeatured',
+  isEditorPick: 'isEditorPick',
   mediaType: 'mediaType',
   status: 'status',
   createdAt: 'createdAt',

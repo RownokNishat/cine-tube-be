@@ -89,9 +89,20 @@ const stripeWebhook = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+const getDashboardAnalytics = catchAsync(async (req: Request, res: Response) => {
+    const data = await PurchaseService.getDashboardAnalytics();
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Payment dashboard fetched successfully",
+        data,
+    });
+});
+
 export const PurchaseController = {
     createCheckoutSession,
     getMyPurchases,
     verifyPaymentSuccess,
     stripeWebhook,
+    getDashboardAnalytics,
 };

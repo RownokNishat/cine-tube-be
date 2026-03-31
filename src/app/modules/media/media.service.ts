@@ -1,19 +1,162 @@
 import status from "http-status";
-import { MediaStatus, MediaType, PricingType } from "../../../generated/enums.js";
+import { MediaStatus, MediaType, PricingType, ReviewStatus } from "../../../generated/enums.js";
 import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../config/cloudinary.config.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { IQueryParams } from "../../interfaces/query.interface.js";
 import { prisma } from "../../../lib/prisma.js";
-import { QueryBuilder } from "../../utils/QueryBuilder.js";
 import { ICreateMediaPayload, IUpdateMediaPayload } from "./media.interface.js";
 
 const SEARCHABLE_FIELDS = ["title", "synopsis", "director"];
-const FILTERABLE_FIELDS = ["mediaType", "pricingType", "status", "releaseYear"];
+const FILTERABLE_FIELDS = ["mediaType", "pricingType", "status", "releaseYear", "isFeatured", "isEditorPick"];
 
-const getAllMedia = async (queryParams: IQueryParams) => {
+type MediaWithRelations = Awaited<ReturnType<typeof prisma.media.findFirstOrThrow>> & {
+    genres: { genre: { id: string; name: string } }[];
+    reviews: { rating: number; _count: { likes: number } }[];
+    _count: {
+        reviews: number;
+        watchlistEntries: number;
+        purchases: number;
+    };
+};
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+
+const parseOptionalBoolean = (value: string | undefined) => {
+    if (value === "true") {
+        return true;
+    }
+
+    if (value === "false") {
+        return false;
+    }
+
+    return undefined;
+};
+
+const calculatePopularityScore = (media: ReturnType<typeof transformMediaRecord>) => (
+    media._count.reviews + media._count.likes + media.watchlistCount + media.purchaseCount
+);
+
+const matchesSearchTerm = (media: MediaWithRelations, searchTerm: string) => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    if (!normalizedSearch) {
+        return true;
+    }
+
+    const searchableValues = [
+        media.title,
+        media.synopsis,
+        media.director,
+        ...media.cast,
+    ];
+
+    return searchableValues.some((value) => value.toLowerCase().includes(normalizedSearch));
+};
+
+const transformMediaRecord = (media: MediaWithRelations) => {
+    const reviewCount = media.reviews.length;
+    const totalRating = media.reviews.reduce((sum, review) => sum + review.rating, 0);
+    const totalLikes = media.reviews.reduce((sum, review) => sum + review._count.likes, 0);
+    const averageRating = reviewCount > 0 ? Number((totalRating / reviewCount).toFixed(1)) : 0;
+
+    return {
+        ...media,
+        genres: media.genres.map((mediaGenre) => mediaGenre.genre),
+        averageRating,
+        watchlistCount: media._count.watchlistEntries,
+        purchaseCount: media._count.purchases,
+        _count: {
+            reviews: reviewCount,
+            likes: totalLikes,
+        },
+    };
+};
+
+const sortMediaRecords = (
+    mediaRecords: ReturnType<typeof transformMediaRecord>[],
+    sortBy: string,
+    sortOrder: "asc" | "desc",
+) => {
+    const direction = sortOrder === "asc" ? 1 : -1;
+
+    return [...mediaRecords].sort((first, second) => {
+        let firstValue: string | number | Date = 0;
+        let secondValue: string | number | Date = 0;
+
+        switch (sortBy) {
+            case "averageRating":
+                firstValue = first.averageRating ?? 0;
+                secondValue = second.averageRating ?? 0;
+                break;
+            case "reviewCount":
+                firstValue = first._count.reviews ?? 0;
+                secondValue = second._count.reviews ?? 0;
+                break;
+            case "mostLiked":
+                firstValue = first._count.likes ?? 0;
+                secondValue = second._count.likes ?? 0;
+                break;
+            case "popularity":
+                firstValue = calculatePopularityScore(first);
+                secondValue = calculatePopularityScore(second);
+                break;
+            case "releaseYear":
+                firstValue = first.releaseYear;
+                secondValue = second.releaseYear;
+                break;
+            case "title":
+                firstValue = first.title.toLowerCase();
+                secondValue = second.title.toLowerCase();
+                break;
+            case "createdAt":
+            default:
+                firstValue = new Date(first.createdAt);
+                secondValue = new Date(second.createdAt);
+                break;
+        }
+
+        if (firstValue < secondValue) {
+            return -1 * direction;
+        }
+
+        if (firstValue > secondValue) {
+            return 1 * direction;
+        }
+
+        return 0;
+    });
+};
+
+const getMediaBaseWhere = (queryParams: IQueryParams) => {
     const baseWhere: Record<string, unknown> = {};
 
-    // genre filter via junction table
+    if (queryParams.mediaType) {
+        baseWhere.mediaType = queryParams.mediaType;
+    }
+
+    if (queryParams.pricingType) {
+        baseWhere.pricingType = queryParams.pricingType;
+    }
+
+    if (queryParams.status) {
+        baseWhere.status = queryParams.status;
+    }
+
+    if (queryParams.releaseYear) {
+        baseWhere.releaseYear = Number(queryParams.releaseYear);
+    }
+
+    const featured = parseOptionalBoolean(queryParams.featured);
+    if (featured !== undefined) {
+        baseWhere.isFeatured = featured;
+    }
+
+    const editorPick = parseOptionalBoolean(queryParams.editorPick);
+    if (editorPick !== undefined) {
+        baseWhere.isEditorPick = editorPick;
+    }
+
     if (queryParams.genre) {
         baseWhere.genres = {
             some: {
@@ -22,33 +165,99 @@ const getAllMedia = async (queryParams: IQueryParams) => {
                 },
             },
         };
-        delete queryParams.genre;
     }
 
-    const builder = new QueryBuilder(prisma.media, queryParams, {
-        searchableFields: SEARCHABLE_FIELDS,
-        filterableFields: FILTERABLE_FIELDS,
-    });
+    return baseWhere;
+};
 
-    const result = await builder
-        .search()
-        .filter()
-        .where(baseWhere)
-        .sort()
-        .paginate()
-        .include({
+const listMediaRecords = async (queryParams: IQueryParams) => {
+    const baseWhere = getMediaBaseWhere(queryParams);
+
+    return prisma.media.findMany({
+        where: baseWhere,
+        include: {
             genres: { include: { genre: true } },
-            _count: { select: { reviews: true } },
+            reviews: {
+                where: { status: ReviewStatus.PUBLISHED },
+                select: {
+                    rating: true,
+                    _count: { select: { likes: true } },
+                },
+            },
+            _count: {
+                select: {
+                    reviews: true,
+                    watchlistEntries: true,
+                    purchases: true,
+                },
+            },
+        },
+    }) as Promise<MediaWithRelations[]>;
+};
+
+const getAllMedia = async (queryParams: IQueryParams) => {
+    const page = Math.max(Number(queryParams.page) || DEFAULT_PAGE, 1);
+    const limit = Math.max(Number(queryParams.limit) || DEFAULT_LIMIT, 1);
+    const skip = (page - 1) * limit;
+    const sortBy = queryParams.sortBy || "createdAt";
+    const sortOrder = queryParams.sortOrder === "asc" ? "asc" : "desc";
+    const minRating = queryParams.minRating ? Number(queryParams.minRating) : undefined;
+    const streamingPlatform = queryParams.streamingPlatform?.trim().toLowerCase();
+    const popularity = queryParams.popularity?.trim().toLowerCase();
+    const searchTerm = queryParams.searchTerm?.trim();
+
+    const mediaRecords = await listMediaRecords(queryParams);
+
+    const filteredMedia = mediaRecords
+        .filter((media) => {
+            if (searchTerm && !matchesSearchTerm(media, searchTerm)) {
+                return false;
+            }
+
+            if (
+                streamingPlatform &&
+                !media.streamingPlatform.some((platform) => platform.toLowerCase().includes(streamingPlatform))
+            ) {
+                return false;
+            }
+
+            return true;
         })
-        .execute();
+        .map(transformMediaRecord)
+        .filter((media) => {
+            if (minRating !== undefined && media.averageRating < minRating) {
+                return false;
+            }
 
-    // Flatten genres for frontend: genres: [{ id, name }]
-    const data = (result.data as Record<string, unknown>[]).map((item) => ({
-        ...item,
-        genres: (item.genres as { genre: { id: string; name: string } }[]).map((mg) => mg.genre),
-    }));
+            if (popularity === "high") {
+                return calculatePopularityScore(media) >= 20;
+            }
 
-    return { data, meta: result.meta };
+            if (popularity === "medium") {
+                const score = calculatePopularityScore(media);
+                return score >= 8 && score < 20;
+            }
+
+            if (popularity === "low") {
+                return calculatePopularityScore(media) < 8;
+            }
+
+            return true;
+        });
+
+    const sortedMedia = sortMediaRecords(filteredMedia, sortBy, sortOrder);
+    const data = sortedMedia.slice(skip, skip + limit);
+    const total = sortedMedia.length;
+
+    return {
+        data,
+        meta: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
 };
 
 const getMediaById = async (id: string) => {
@@ -56,7 +265,20 @@ const getMediaById = async (id: string) => {
         where: { id },
         include: {
             genres: { include: { genre: true } },
-            _count: { select: { reviews: true } },
+            reviews: {
+                where: { status: ReviewStatus.PUBLISHED },
+                select: {
+                    rating: true,
+                    _count: { select: { likes: true } },
+                },
+            },
+            _count: {
+                select: {
+                    reviews: true,
+                    watchlistEntries: true,
+                    purchases: true,
+                },
+            },
         },
     });
 
@@ -64,10 +286,7 @@ const getMediaById = async (id: string) => {
         throw new AppError(status.NOT_FOUND, "Media not found");
     }
 
-    return {
-        ...media,
-        genres: media.genres.map((mg) => mg.genre),
-    };
+    return transformMediaRecord(media as MediaWithRelations);
 };
 
 const createMedia = async (
@@ -84,6 +303,8 @@ const createMedia = async (
         pricingType,
         streamingLink,
         trailerUrl,
+        isFeatured,
+        isEditorPick,
         mediaType,
         status: mediaStatus,
         genreIds,
@@ -117,6 +338,8 @@ const createMedia = async (
             streamingLink: streamingLink ?? null,
             posterUrl: posterUrl ?? null,
             trailerUrl: trailerUrl ?? null,
+            isFeatured: isFeatured ?? false,
+            isEditorPick: isEditorPick ?? false,
             mediaType: mediaType ?? MediaType.MOVIE,
             status: mediaStatus ?? MediaStatus.PUBLISHED,
             ...(genreIds && genreIds.length > 0
@@ -128,10 +351,7 @@ const createMedia = async (
         },
     });
 
-    return {
-        ...media,
-        genres: media.genres.map((mg) => mg.genre),
-    };
+    return getMediaById(media.id);
 };
 
 const updateMedia = async (
@@ -175,15 +395,7 @@ const updateMedia = async (
         });
     });
 
-    const media = await prisma.media.findUnique({
-        where: { id },
-        include: { genres: { include: { genre: true } } },
-    });
-
-    return {
-        ...media!,
-        genres: media!.genres.map((mg) => mg.genre),
-    };
+    return getMediaById(id);
 };
 
 const deleteMedia = async (id: string) => {
