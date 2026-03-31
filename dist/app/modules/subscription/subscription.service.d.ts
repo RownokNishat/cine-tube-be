@@ -1,23 +1,32 @@
 import { SubscriptionPlan, SubscriptionStatus } from "../../../generated/enums.js";
 export declare const SubscriptionService: {
     getSubscriptionPlans: () => Promise<({
-        currency: string;
-        amount: number;
-        durationDays: number;
-        label: string;
         plan: "FREE";
-    } | {
-        currency: string;
+        price: number;
         amount: number;
+        duration: string;
         durationDays: number;
         label: string;
+        currency: string;
+        features: string[];
+    } | {
         plan: "MONTHLY";
-    } | {
-        currency: string;
+        price: number;
         amount: number;
+        duration: string;
         durationDays: number;
         label: string;
+        currency: string;
+        features: string[];
+    } | {
         plan: "YEARLY";
+        price: number;
+        amount: number;
+        duration: string;
+        durationDays: number;
+        label: string;
+        currency: string;
+        features: string[];
     })[]>;
     getMySubscription: (userId: string) => Promise<{
         plan: "FREE";

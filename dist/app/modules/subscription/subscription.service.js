@@ -9,11 +9,55 @@ const PLAN_CONFIG = {
     MONTHLY: { amount: 9.99, durationDays: 30, label: "Monthly" },
     YEARLY: { amount: 99.99, durationDays: 365, label: "Yearly" },
 };
+const PLAN_FEATURES = {
+    FREE: [
+        "Access to free titles",
+        "Public reviews and watchlist support",
+    ],
+    MONTHLY: [
+        "30 days premium streaming access",
+        "Unlock premium-only titles",
+        "Priority access to new releases",
+    ],
+    YEARLY: [
+        "365 days premium streaming access",
+        "Unlock premium-only titles",
+        "Priority access to new releases",
+        "Best value annual billing",
+    ],
+};
 const getSubscriptionPlans = async () => {
     return [
-        { plan: SubscriptionPlan.FREE, ...PLAN_CONFIG.FREE, currency: "usd" },
-        { plan: SubscriptionPlan.MONTHLY, ...PLAN_CONFIG.MONTHLY, currency: "usd" },
-        { plan: SubscriptionPlan.YEARLY, ...PLAN_CONFIG.YEARLY, currency: "usd" },
+        {
+            plan: SubscriptionPlan.FREE,
+            price: PLAN_CONFIG.FREE.amount,
+            amount: PLAN_CONFIG.FREE.amount,
+            duration: "Lifetime",
+            durationDays: PLAN_CONFIG.FREE.durationDays,
+            label: PLAN_CONFIG.FREE.label,
+            currency: "usd",
+            features: PLAN_FEATURES.FREE,
+        },
+        {
+            plan: SubscriptionPlan.MONTHLY,
+            price: PLAN_CONFIG.MONTHLY.amount,
+            amount: PLAN_CONFIG.MONTHLY.amount,
+            duration: "30 days",
+            durationDays: PLAN_CONFIG.MONTHLY.durationDays,
+            label: PLAN_CONFIG.MONTHLY.label,
+            currency: "usd",
+            features: PLAN_FEATURES.MONTHLY,
+        },
+        {
+            plan: SubscriptionPlan.YEARLY,
+            price: PLAN_CONFIG.YEARLY.amount,
+            amount: PLAN_CONFIG.YEARLY.amount,
+            duration: "365 days",
+            durationDays: PLAN_CONFIG.YEARLY.durationDays,
+            label: PLAN_CONFIG.YEARLY.label,
+            currency: "usd",
+            features: PLAN_FEATURES.YEARLY,
+        },
     ];
 };
 const getMySubscription = async (userId) => {
