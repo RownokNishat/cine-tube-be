@@ -15,9 +15,11 @@ export type AggregatePurchase = {
 };
 export type PurchaseAvgAggregateOutputType = {
     amount: number | null;
+    rentalDays: number | null;
 };
 export type PurchaseSumAggregateOutputType = {
     amount: number | null;
+    rentalDays: number | null;
 };
 export type PurchaseMinAggregateOutputType = {
     id: string | null;
@@ -28,6 +30,9 @@ export type PurchaseMinAggregateOutputType = {
     amount: number | null;
     currency: string | null;
     status: $Enums.PurchaseStatus | null;
+    purchaseType: $Enums.PurchaseType | null;
+    rentalDays: number | null;
+    rentalExpiresAt: Date | null;
     createdAt: Date | null;
     updatedAt: Date | null;
 };
@@ -40,6 +45,9 @@ export type PurchaseMaxAggregateOutputType = {
     amount: number | null;
     currency: string | null;
     status: $Enums.PurchaseStatus | null;
+    purchaseType: $Enums.PurchaseType | null;
+    rentalDays: number | null;
+    rentalExpiresAt: Date | null;
     createdAt: Date | null;
     updatedAt: Date | null;
 };
@@ -52,15 +60,20 @@ export type PurchaseCountAggregateOutputType = {
     amount: number;
     currency: number;
     status: number;
+    purchaseType: number;
+    rentalDays: number;
+    rentalExpiresAt: number;
     createdAt: number;
     updatedAt: number;
     _all: number;
 };
 export type PurchaseAvgAggregateInputType = {
     amount?: true;
+    rentalDays?: true;
 };
 export type PurchaseSumAggregateInputType = {
     amount?: true;
+    rentalDays?: true;
 };
 export type PurchaseMinAggregateInputType = {
     id?: true;
@@ -71,6 +84,9 @@ export type PurchaseMinAggregateInputType = {
     amount?: true;
     currency?: true;
     status?: true;
+    purchaseType?: true;
+    rentalDays?: true;
+    rentalExpiresAt?: true;
     createdAt?: true;
     updatedAt?: true;
 };
@@ -83,6 +99,9 @@ export type PurchaseMaxAggregateInputType = {
     amount?: true;
     currency?: true;
     status?: true;
+    purchaseType?: true;
+    rentalDays?: true;
+    rentalExpiresAt?: true;
     createdAt?: true;
     updatedAt?: true;
 };
@@ -95,6 +114,9 @@ export type PurchaseCountAggregateInputType = {
     amount?: true;
     currency?: true;
     status?: true;
+    purchaseType?: true;
+    rentalDays?: true;
+    rentalExpiresAt?: true;
     createdAt?: true;
     updatedAt?: true;
     _all?: true;
@@ -184,6 +206,9 @@ export type PurchaseGroupByOutputType = {
     amount: number;
     currency: string;
     status: $Enums.PurchaseStatus;
+    purchaseType: $Enums.PurchaseType;
+    rentalDays: number | null;
+    rentalExpiresAt: Date | null;
     createdAt: Date;
     updatedAt: Date;
     _count: PurchaseCountAggregateOutputType | null;
@@ -207,6 +232,9 @@ export type PurchaseWhereInput = {
     amount?: Prisma.FloatFilter<"Purchase"> | number;
     currency?: Prisma.StringFilter<"Purchase"> | string;
     status?: Prisma.EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFilter<"Purchase"> | $Enums.PurchaseType;
+    rentalDays?: Prisma.IntNullableFilter<"Purchase"> | number | null;
+    rentalExpiresAt?: Prisma.DateTimeNullableFilter<"Purchase"> | Date | string | null;
     createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string;
     user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
@@ -221,6 +249,9 @@ export type PurchaseOrderByWithRelationInput = {
     amount?: Prisma.SortOrder;
     currency?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
+    purchaseType?: Prisma.SortOrder;
+    rentalDays?: Prisma.SortOrderInput | Prisma.SortOrder;
+    rentalExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     user?: Prisma.UserOrderByWithRelationInput;
@@ -239,6 +270,9 @@ export type PurchaseWhereUniqueInput = Prisma.AtLeast<{
     amount?: Prisma.FloatFilter<"Purchase"> | number;
     currency?: Prisma.StringFilter<"Purchase"> | string;
     status?: Prisma.EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFilter<"Purchase"> | $Enums.PurchaseType;
+    rentalDays?: Prisma.IntNullableFilter<"Purchase"> | number | null;
+    rentalExpiresAt?: Prisma.DateTimeNullableFilter<"Purchase"> | Date | string | null;
     createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string;
     user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
@@ -253,6 +287,9 @@ export type PurchaseOrderByWithAggregationInput = {
     amount?: Prisma.SortOrder;
     currency?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
+    purchaseType?: Prisma.SortOrder;
+    rentalDays?: Prisma.SortOrderInput | Prisma.SortOrder;
+    rentalExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     _count?: Prisma.PurchaseCountOrderByAggregateInput;
@@ -273,6 +310,9 @@ export type PurchaseScalarWhereWithAggregatesInput = {
     amount?: Prisma.FloatWithAggregatesFilter<"Purchase"> | number;
     currency?: Prisma.StringWithAggregatesFilter<"Purchase"> | string;
     status?: Prisma.EnumPurchaseStatusWithAggregatesFilter<"Purchase"> | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeWithAggregatesFilter<"Purchase"> | $Enums.PurchaseType;
+    rentalDays?: Prisma.IntNullableWithAggregatesFilter<"Purchase"> | number | null;
+    rentalExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Purchase"> | Date | string | null;
     createdAt?: Prisma.DateTimeWithAggregatesFilter<"Purchase"> | Date | string;
     updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Purchase"> | Date | string;
 };
@@ -283,6 +323,9 @@ export type PurchaseCreateInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     user: Prisma.UserCreateNestedOneWithoutPurchasesInput;
@@ -297,6 +340,9 @@ export type PurchaseUncheckedCreateInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
@@ -307,6 +353,9 @@ export type PurchaseUpdateInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     user?: Prisma.UserUpdateOneRequiredWithoutPurchasesNestedInput;
@@ -321,6 +370,9 @@ export type PurchaseUncheckedUpdateInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -333,6 +385,9 @@ export type PurchaseCreateManyInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
@@ -343,6 +398,9 @@ export type PurchaseUpdateManyMutationInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -355,6 +413,9 @@ export type PurchaseUncheckedUpdateManyInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -379,11 +440,15 @@ export type PurchaseCountOrderByAggregateInput = {
     amount?: Prisma.SortOrder;
     currency?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
+    purchaseType?: Prisma.SortOrder;
+    rentalDays?: Prisma.SortOrder;
+    rentalExpiresAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
 export type PurchaseAvgOrderByAggregateInput = {
     amount?: Prisma.SortOrder;
+    rentalDays?: Prisma.SortOrder;
 };
 export type PurchaseMaxOrderByAggregateInput = {
     id?: Prisma.SortOrder;
@@ -394,6 +459,9 @@ export type PurchaseMaxOrderByAggregateInput = {
     amount?: Prisma.SortOrder;
     currency?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
+    purchaseType?: Prisma.SortOrder;
+    rentalDays?: Prisma.SortOrder;
+    rentalExpiresAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
@@ -406,11 +474,15 @@ export type PurchaseMinOrderByAggregateInput = {
     amount?: Prisma.SortOrder;
     currency?: Prisma.SortOrder;
     status?: Prisma.SortOrder;
+    purchaseType?: Prisma.SortOrder;
+    rentalDays?: Prisma.SortOrder;
+    rentalExpiresAt?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
 export type PurchaseSumOrderByAggregateInput = {
     amount?: Prisma.SortOrder;
+    rentalDays?: Prisma.SortOrder;
 };
 export type PurchaseCreateNestedManyWithoutUserInput = {
     create?: Prisma.XOR<Prisma.PurchaseCreateWithoutUserInput, Prisma.PurchaseUncheckedCreateWithoutUserInput> | Prisma.PurchaseCreateWithoutUserInput[] | Prisma.PurchaseUncheckedCreateWithoutUserInput[];
@@ -498,6 +570,16 @@ export type FloatFieldUpdateOperationsInput = {
 export type EnumPurchaseStatusFieldUpdateOperationsInput = {
     set?: $Enums.PurchaseStatus;
 };
+export type EnumPurchaseTypeFieldUpdateOperationsInput = {
+    set?: $Enums.PurchaseType;
+};
+export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null;
+    increment?: number;
+    decrement?: number;
+    multiply?: number;
+    divide?: number;
+};
 export type PurchaseCreateWithoutUserInput = {
     id?: string;
     stripeSessionId: string;
@@ -505,6 +587,9 @@ export type PurchaseCreateWithoutUserInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     media: Prisma.MediaCreateNestedOneWithoutPurchasesInput;
@@ -517,6 +602,9 @@ export type PurchaseUncheckedCreateWithoutUserInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
@@ -553,6 +641,9 @@ export type PurchaseScalarWhereInput = {
     amount?: Prisma.FloatFilter<"Purchase"> | number;
     currency?: Prisma.StringFilter<"Purchase"> | string;
     status?: Prisma.EnumPurchaseStatusFilter<"Purchase"> | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFilter<"Purchase"> | $Enums.PurchaseType;
+    rentalDays?: Prisma.IntNullableFilter<"Purchase"> | number | null;
+    rentalExpiresAt?: Prisma.DateTimeNullableFilter<"Purchase"> | Date | string | null;
     createdAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Purchase"> | Date | string;
 };
@@ -563,6 +654,9 @@ export type PurchaseCreateWithoutMediaInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
     user: Prisma.UserCreateNestedOneWithoutPurchasesInput;
@@ -575,6 +669,9 @@ export type PurchaseUncheckedCreateWithoutMediaInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
@@ -607,6 +704,9 @@ export type PurchaseCreateManyUserInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
@@ -617,6 +717,9 @@ export type PurchaseUpdateWithoutUserInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     media?: Prisma.MediaUpdateOneRequiredWithoutPurchasesNestedInput;
@@ -629,6 +732,9 @@ export type PurchaseUncheckedUpdateWithoutUserInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -640,6 +746,9 @@ export type PurchaseUncheckedUpdateManyWithoutUserInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -651,6 +760,9 @@ export type PurchaseCreateManyMediaInput = {
     amount: number;
     currency?: string;
     status?: $Enums.PurchaseStatus;
+    purchaseType?: $Enums.PurchaseType;
+    rentalDays?: number | null;
+    rentalExpiresAt?: Date | string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
@@ -661,6 +773,9 @@ export type PurchaseUpdateWithoutMediaInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     user?: Prisma.UserUpdateOneRequiredWithoutPurchasesNestedInput;
@@ -673,6 +788,9 @@ export type PurchaseUncheckedUpdateWithoutMediaInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -684,6 +802,9 @@ export type PurchaseUncheckedUpdateManyWithoutMediaInput = {
     amount?: Prisma.FloatFieldUpdateOperationsInput | number;
     currency?: Prisma.StringFieldUpdateOperationsInput | string;
     status?: Prisma.EnumPurchaseStatusFieldUpdateOperationsInput | $Enums.PurchaseStatus;
+    purchaseType?: Prisma.EnumPurchaseTypeFieldUpdateOperationsInput | $Enums.PurchaseType;
+    rentalDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+    rentalExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -696,6 +817,9 @@ export type PurchaseSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
     amount?: boolean;
     currency?: boolean;
     status?: boolean;
+    purchaseType?: boolean;
+    rentalDays?: boolean;
+    rentalExpiresAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -710,6 +834,9 @@ export type PurchaseSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
     amount?: boolean;
     currency?: boolean;
     status?: boolean;
+    purchaseType?: boolean;
+    rentalDays?: boolean;
+    rentalExpiresAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -724,6 +851,9 @@ export type PurchaseSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
     amount?: boolean;
     currency?: boolean;
     status?: boolean;
+    purchaseType?: boolean;
+    rentalDays?: boolean;
+    rentalExpiresAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -738,10 +868,13 @@ export type PurchaseSelectScalar = {
     amount?: boolean;
     currency?: boolean;
     status?: boolean;
+    purchaseType?: boolean;
+    rentalDays?: boolean;
+    rentalExpiresAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type PurchaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "mediaId" | "stripeSessionId" | "stripePaymentId" | "amount" | "currency" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>;
+export type PurchaseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "mediaId" | "stripeSessionId" | "stripePaymentId" | "amount" | "currency" | "status" | "purchaseType" | "rentalDays" | "rentalExpiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["purchase"]>;
 export type PurchaseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
     media?: boolean | Prisma.MediaDefaultArgs<ExtArgs>;
@@ -769,6 +902,9 @@ export type $PurchasePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
         amount: number;
         currency: string;
         status: $Enums.PurchaseStatus;
+        purchaseType: $Enums.PurchaseType;
+        rentalDays: number | null;
+        rentalExpiresAt: Date | null;
         createdAt: Date;
         updatedAt: Date;
     }, ExtArgs["result"]["purchase"]>;
@@ -1135,6 +1271,9 @@ export interface PurchaseFieldRefs {
     readonly amount: Prisma.FieldRef<"Purchase", 'Float'>;
     readonly currency: Prisma.FieldRef<"Purchase", 'String'>;
     readonly status: Prisma.FieldRef<"Purchase", 'PurchaseStatus'>;
+    readonly purchaseType: Prisma.FieldRef<"Purchase", 'PurchaseType'>;
+    readonly rentalDays: Prisma.FieldRef<"Purchase", 'Int'>;
+    readonly rentalExpiresAt: Prisma.FieldRef<"Purchase", 'DateTime'>;
     readonly createdAt: Prisma.FieldRef<"Purchase", 'DateTime'>;
     readonly updatedAt: Prisma.FieldRef<"Purchase", 'DateTime'>;
 }

@@ -4,6 +4,8 @@ export declare const ReviewController: {
     getMediaReviews: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     getMediaReviewsForAdmin: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     getReviewById: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    getMyReviews: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    getReviewPermissions: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     updateReview: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     deleteReview: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     likeReview: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;

@@ -67,6 +67,28 @@ const getReviewById = catchAsync(async (req, res) => {
         data: result,
     });
 });
+const getMyReviews = catchAsync(async (req, res) => {
+    const userId = req.user.userId;
+    const result = await ReviewService.getMyReviews(userId, req.query);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "My reviews fetched successfully",
+        data: result.data,
+        meta: result.meta,
+    });
+});
+const getReviewPermissions = catchAsync(async (req, res) => {
+    const userId = req.user.userId;
+    const reviewId = req.params.reviewId;
+    const result = await ReviewService.getReviewPermissions(userId, reviewId);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Review permissions fetched successfully",
+        data: result,
+    });
+});
 const updateReview = catchAsync(async (req, res) => {
     const userId = req.user.userId;
     const reviewId = req.params.reviewId;
@@ -258,6 +280,8 @@ export const ReviewController = {
     getMediaReviews,
     getMediaReviewsForAdmin,
     getReviewById,
+    getMyReviews,
+    getReviewPermissions,
     updateReview,
     deleteReview,
     likeReview,

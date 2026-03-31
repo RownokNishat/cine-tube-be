@@ -10,13 +10,17 @@ import { PurchaseService } from "./purchase.service.js";
 
 const createCheckoutSession = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.userId;
-    const { mediaId } = req.body as { mediaId: string };
+    const { mediaId, purchaseType = "PURCHASE", rentalDays } = req.body as { 
+        mediaId: string; 
+        purchaseType?: "PURCHASE" | "RENTAL";
+        rentalDays?: number;
+    };
 
     if (!mediaId) {
         throw new AppError(httpStatus.BAD_REQUEST, "mediaId is required");
     }
 
-    const result = await PurchaseService.createCheckoutSession(userId, mediaId);
+    const result = await PurchaseService.createCheckoutSession(userId, mediaId, purchaseType, rentalDays);
     sendResponse(res, {
         httpStatusCode: httpStatus.CREATED,
         success: true,
@@ -90,12 +94,27 @@ const stripeWebhook = async (req: Request, res: Response): Promise<void> => {
 };
 
 const getDashboardAnalytics = catchAsync(async (req: Request, res: Response) => {
-    const data = await PurchaseService.getDashboardAnalytics();
+    const periodDays = Number((req.query as { periodDays?: string }).periodDays) || 30;
+    const data = await PurchaseService.getDashboardAnalytics(periodDays);
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
         message: "Payment dashboard fetched successfully",
         data,
+    });
+});
+
+const getPaymentTransactions = catchAsync(async (req: Request, res: Response) => {
+    const page = Number((req.query as { page?: string }).page) || 1;
+    const limit = Number((req.query as { limit?: string }).limit) || 20;
+
+    const result = await PurchaseService.getPaymentTransactions({ page, limit });
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Payment transactions fetched successfully",
+        data: result.data,
+        meta: result.meta,
     });
 });
 
@@ -105,4 +124,5 @@ export const PurchaseController = {
     verifyPaymentSuccess,
     stripeWebhook,
     getDashboardAnalytics,
+    getPaymentTransactions,
 };

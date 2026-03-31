@@ -245,6 +245,7 @@ export declare const ModelName: {
     readonly ReviewComment: "ReviewComment";
     readonly CommentLike: "CommentLike";
     readonly Watchlist: "Watchlist";
+    readonly ContactMessage: "ContactMessage";
     readonly Purchase: "Purchase";
     readonly Subscription: "Subscription";
 };
@@ -259,7 +260,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         omit: GlobalOmitOptions;
     };
     meta: {
-        modelProps: "user" | "session" | "account" | "verification" | "userProfile" | "adminProfile" | "genre" | "media" | "mediaGenre" | "review" | "reviewLike" | "reviewComment" | "commentLike" | "watchlist" | "purchase" | "subscription";
+        modelProps: "user" | "session" | "account" | "verification" | "userProfile" | "adminProfile" | "genre" | "media" | "mediaGenre" | "review" | "reviewLike" | "reviewComment" | "commentLike" | "watchlist" | "contactMessage" | "purchase" | "subscription";
         txIsolationLevel: TransactionIsolationLevel;
     };
     model: {
@@ -1299,6 +1300,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
                 };
             };
         };
+        ContactMessage: {
+            payload: Prisma.$ContactMessagePayload<ExtArgs>;
+            fields: Prisma.ContactMessageFieldRefs;
+            operations: {
+                findUnique: {
+                    args: Prisma.ContactMessageFindUniqueArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload> | null;
+                };
+                findUniqueOrThrow: {
+                    args: Prisma.ContactMessageFindUniqueOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>;
+                };
+                findFirst: {
+                    args: Prisma.ContactMessageFindFirstArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload> | null;
+                };
+                findFirstOrThrow: {
+                    args: Prisma.ContactMessageFindFirstOrThrowArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>;
+                };
+                findMany: {
+                    args: Prisma.ContactMessageFindManyArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>[];
+                };
+                create: {
+                    args: Prisma.ContactMessageCreateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>;
+                };
+                createMany: {
+                    args: Prisma.ContactMessageCreateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                createManyAndReturn: {
+                    args: Prisma.ContactMessageCreateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>[];
+                };
+                delete: {
+                    args: Prisma.ContactMessageDeleteArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>;
+                };
+                update: {
+                    args: Prisma.ContactMessageUpdateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>;
+                };
+                deleteMany: {
+                    args: Prisma.ContactMessageDeleteManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateMany: {
+                    args: Prisma.ContactMessageUpdateManyArgs<ExtArgs>;
+                    result: BatchPayload;
+                };
+                updateManyAndReturn: {
+                    args: Prisma.ContactMessageUpdateManyAndReturnArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>[];
+                };
+                upsert: {
+                    args: Prisma.ContactMessageUpsertArgs<ExtArgs>;
+                    result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactMessagePayload>;
+                };
+                aggregate: {
+                    args: Prisma.ContactMessageAggregateArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.AggregateContactMessage>;
+                };
+                groupBy: {
+                    args: Prisma.ContactMessageGroupByArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.ContactMessageGroupByOutputType>[];
+                };
+                count: {
+                    args: Prisma.ContactMessageCountArgs<ExtArgs>;
+                    result: runtime.Types.Utils.Optional<Prisma.ContactMessageCountAggregateOutputType> | number;
+                };
+            };
+        };
         Purchase: {
             payload: Prisma.$PurchasePayload<ExtArgs>;
             fields: Prisma.PurchaseFieldRefs;
@@ -1624,6 +1699,17 @@ export declare const WatchlistScalarFieldEnum: {
     readonly createdAt: "createdAt";
 };
 export type WatchlistScalarFieldEnum = (typeof WatchlistScalarFieldEnum)[keyof typeof WatchlistScalarFieldEnum];
+export declare const ContactMessageScalarFieldEnum: {
+    readonly id: "id";
+    readonly name: "name";
+    readonly email: "email";
+    readonly subject: "subject";
+    readonly message: "message";
+    readonly isRead: "isRead";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type ContactMessageScalarFieldEnum = (typeof ContactMessageScalarFieldEnum)[keyof typeof ContactMessageScalarFieldEnum];
 export declare const PurchaseScalarFieldEnum: {
     readonly id: "id";
     readonly userId: "userId";
@@ -1633,6 +1719,9 @@ export declare const PurchaseScalarFieldEnum: {
     readonly amount: "amount";
     readonly currency: "currency";
     readonly status: "status";
+    readonly purchaseType: "purchaseType";
+    readonly rentalDays: "rentalDays";
+    readonly rentalExpiresAt: "rentalExpiresAt";
     readonly createdAt: "createdAt";
     readonly updatedAt: "updatedAt";
 };
@@ -1762,6 +1851,14 @@ export type EnumPurchaseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  */
 export type ListEnumPurchaseStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PurchaseStatus[]'>;
 /**
+ * Reference to a field of type 'PurchaseType'
+ */
+export type EnumPurchaseTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PurchaseType'>;
+/**
+ * Reference to a field of type 'PurchaseType[]'
+ */
+export type ListEnumPurchaseTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PurchaseType[]'>;
+/**
  * Reference to a field of type 'SubscriptionPlan'
  */
 export type EnumSubscriptionPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPlan'>;
@@ -1885,6 +1982,7 @@ export type GlobalOmitConfig = {
     reviewComment?: Prisma.ReviewCommentOmit;
     commentLike?: Prisma.CommentLikeOmit;
     watchlist?: Prisma.WatchlistOmit;
+    contactMessage?: Prisma.ContactMessageOmit;
     purchase?: Prisma.PurchaseOmit;
     subscription?: Prisma.SubscriptionOmit;
 };

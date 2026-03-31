@@ -32,6 +32,20 @@ router.post(
     ReviewController.createReview,
 );
 
+// GET /api/v1/reviews/me - list current user's reviews with action permissions
+router.get(
+    "/me",
+    checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN),
+    ReviewController.getMyReviews,
+);
+
+// GET /api/v1/reviews/:reviewId/permissions - get current user's review action permissions
+router.get(
+    "/:reviewId/permissions",
+    checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN),
+    ReviewController.getReviewPermissions,
+);
+
 // GET /api/v1/reviews/:reviewId - get single review
 router.get("/:reviewId", ReviewController.getReviewById);
 

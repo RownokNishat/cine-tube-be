@@ -48,6 +48,11 @@ export const PurchaseStatus = {
     PENDING: 'PENDING',
     COMPLETED: 'COMPLETED',
     FAILED: 'FAILED',
-    REFUNDED: 'REFUNDED'
+    REFUNDED: 'REFUNDED',
+    RENTAL_EXPIRED: 'RENTAL_EXPIRED'
+};
+export const PurchaseType = {
+    PURCHASE: 'PURCHASE',
+    RENTAL: 'RENTAL'
 };
 //# sourceMappingURL=enums.js.map

@@ -40,6 +40,7 @@ export declare const ModelName: {
     readonly ReviewComment: "ReviewComment";
     readonly CommentLike: "CommentLike";
     readonly Watchlist: "Watchlist";
+    readonly ContactMessage: "ContactMessage";
     readonly Purchase: "Purchase";
     readonly Subscription: "Subscription";
 };
@@ -194,6 +195,17 @@ export declare const WatchlistScalarFieldEnum: {
     readonly createdAt: "createdAt";
 };
 export type WatchlistScalarFieldEnum = (typeof WatchlistScalarFieldEnum)[keyof typeof WatchlistScalarFieldEnum];
+export declare const ContactMessageScalarFieldEnum: {
+    readonly id: "id";
+    readonly name: "name";
+    readonly email: "email";
+    readonly subject: "subject";
+    readonly message: "message";
+    readonly isRead: "isRead";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type ContactMessageScalarFieldEnum = (typeof ContactMessageScalarFieldEnum)[keyof typeof ContactMessageScalarFieldEnum];
 export declare const PurchaseScalarFieldEnum: {
     readonly id: "id";
     readonly userId: "userId";
@@ -203,6 +215,9 @@ export declare const PurchaseScalarFieldEnum: {
     readonly amount: "amount";
     readonly currency: "currency";
     readonly status: "status";
+    readonly purchaseType: "purchaseType";
+    readonly rentalDays: "rentalDays";
+    readonly rentalExpiresAt: "rentalExpiresAt";
     readonly createdAt: "createdAt";
     readonly updatedAt: "updatedAt";
 };

@@ -7,11 +7,11 @@ import AppError from "../../errorHelpers/AppError.js";
 import { PurchaseService } from "./purchase.service.js";
 const createCheckoutSession = catchAsync(async (req, res) => {
     const userId = req.user.userId;
-    const { mediaId } = req.body;
+    const { mediaId, purchaseType = "PURCHASE", rentalDays } = req.body;
     if (!mediaId) {
         throw new AppError(httpStatus.BAD_REQUEST, "mediaId is required");
     }
-    const result = await PurchaseService.createCheckoutSession(userId, mediaId);
+    const result = await PurchaseService.createCheckoutSession(userId, mediaId, purchaseType, rentalDays);
     sendResponse(res, {
         httpStatusCode: httpStatus.CREATED,
         success: true,
@@ -74,12 +74,25 @@ const stripeWebhook = async (req, res) => {
     }
 };
 const getDashboardAnalytics = catchAsync(async (req, res) => {
-    const data = await PurchaseService.getDashboardAnalytics();
+    const periodDays = Number(req.query.periodDays) || 30;
+    const data = await PurchaseService.getDashboardAnalytics(periodDays);
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
         message: "Payment dashboard fetched successfully",
         data,
+    });
+});
+const getPaymentTransactions = catchAsync(async (req, res) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const result = await PurchaseService.getPaymentTransactions({ page, limit });
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Payment transactions fetched successfully",
+        data: result.data,
+        meta: result.meta,
     });
 });
 export const PurchaseController = {
@@ -88,5 +101,6 @@ export const PurchaseController = {
     verifyPaymentSuccess,
     stripeWebhook,
     getDashboardAnalytics,
+    getPaymentTransactions,
 };
 //# sourceMappingURL=purchase.controller.js.map

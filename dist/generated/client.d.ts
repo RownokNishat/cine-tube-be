@@ -92,6 +92,11 @@ export type CommentLike = Prisma.CommentLikeModel;
  */
 export type Watchlist = Prisma.WatchlistModel;
 /**
+ * Model ContactMessage
+ *
+ */
+export type ContactMessage = Prisma.ContactMessageModel;
+/**
  * Model Purchase
  *
  */

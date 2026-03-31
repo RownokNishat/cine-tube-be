@@ -81,6 +81,7 @@ export const ModelName = {
     ReviewComment: 'ReviewComment',
     CommentLike: 'CommentLike',
     Watchlist: 'Watchlist',
+    ContactMessage: 'ContactMessage',
     Purchase: 'Purchase',
     Subscription: 'Subscription'
 };
@@ -222,6 +223,16 @@ export const WatchlistScalarFieldEnum = {
     mediaId: 'mediaId',
     createdAt: 'createdAt'
 };
+export const ContactMessageScalarFieldEnum = {
+    id: 'id',
+    name: 'name',
+    email: 'email',
+    subject: 'subject',
+    message: 'message',
+    isRead: 'isRead',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
 export const PurchaseScalarFieldEnum = {
     id: 'id',
     userId: 'userId',
@@ -231,6 +242,9 @@ export const PurchaseScalarFieldEnum = {
     amount: 'amount',
     currency: 'currency',
     status: 'status',
+    purchaseType: 'purchaseType',
+    rentalDays: 'rentalDays',
+    rentalExpiresAt: 'rentalExpiresAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };

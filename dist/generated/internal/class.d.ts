@@ -270,6 +270,17 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
         omit: OmitOpts;
     }>;
     /**
+     * `prisma.contactMessage`: Exposes CRUD operations for the **ContactMessage** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more ContactMessages
+      * const contactMessages = await prisma.contactMessage.findMany()
+      * ```
+      */
+    get contactMessage(): Prisma.ContactMessageDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
      * `prisma.purchase`: Exposes CRUD operations for the **Purchase** model.
       * Example usage:
       * ```ts

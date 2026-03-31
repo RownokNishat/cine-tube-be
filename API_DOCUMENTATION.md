@@ -1112,6 +1112,160 @@ GET    /api/v1/subscriptions/plans    — Get plans
 GET    /api/v1/subscriptions/me       — My subscription [auth]
 POST   /api/v1/subscriptions/checkout — Start checkout [auth]
 POST   /api/v1/subscriptions/cancel   — Cancel subscription [auth]
+
+GET    /api/v1/reviews/me                     — My reviews with permissions [auth]
+GET    /api/v1/reviews/:reviewId/permissions  — Review action permissions [auth]
+
+GET    /api/v1/content/about                  — About page content
+GET    /api/v1/content/faq                    — FAQ content
+POST   /api/v1/content/contact                — Submit contact form
+GET    /api/v1/content/contact-messages       — Contact inbox [admin]
+PATCH  /api/v1/content/contact-messages/:id/read — Mark contact message read [admin]
+
+GET    /api/v1/admin/payments/dashboard       — Payment analytics [admin]
+GET    /api/v1/admin/payments/transactions    — Payment transaction feed [admin]
+```
+
+---
+
+## 14. Recently Added APIs (Frontend Wiring)
+
+### 14.1 Review Edit/Delete UI Support
+
+#### GET `/api/v1/reviews/me`
+Returns current user's reviews with permission info for UI controls.
+
+**Example response item:**
+```json
+{
+  "id": "review_id",
+  "status": "PENDING",
+  "content": "Great storytelling",
+  "media": {
+    "id": "media_id",
+    "title": "Inception"
+  },
+  "permissions": {
+    "canEdit": true,
+    "canDelete": true,
+    "reason": null
+  }
+}
+```
+
+#### GET `/api/v1/reviews/:reviewId/permissions`
+Check action availability for a specific review.
+
+```json
+{
+  "success": true,
+  "data": {
+    "reviewId": "review_id",
+    "status": "PUBLISHED",
+    "canEdit": false,
+    "canDelete": false,
+    "reason": "Published reviews cannot be edited or deleted by users"
+  }
+}
+```
+
+### 14.2 About, Contact, FAQ APIs
+
+#### GET `/api/v1/content/about`
+Public payload for About page.
+
+#### GET `/api/v1/content/faq`
+Public FAQ array for collapsible items.
+
+#### POST `/api/v1/content/contact`
+Submit contact form.
+
+**Request body:**
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "subject": "Billing help",
+  "message": "I need help with subscription renewal"
+}
+```
+
+#### GET `/api/v1/content/contact-messages?isRead=false&page=1&limit=10`
+Admin inbox list.
+
+#### PATCH `/api/v1/content/contact-messages/:id/read`
+Marks message as read.
+
+### 14.3 Admin Payment Analytics APIs
+
+#### GET `/api/v1/admin/payments/dashboard?periodDays=30`
+`periodDays` allowed values: `7`, `30`, `90`, `365`.
+
+**Response shape:**
+```json
+{
+  "success": true,
+  "data": {
+    "overview": {
+      "periodDays": 30,
+      "paymentCount": 12,
+      "userCount": 8,
+      "purchaseRevenue": 140.75,
+      "subscriptionRevenue": 60,
+      "rentalRevenue": 26.94,
+      "totalRevenue": 200.75
+    },
+    "barChartData": [
+      { "day": "2026-03-01", "revenue": 29.99, "count": 2 }
+    ],
+    "topMedia": [
+      { "mediaId": "media_1", "title": "Inception", "purchases": 5, "revenue": 49.95 }
+    ],
+    "purchaseStatusBreakdown": [
+      { "status": "COMPLETED", "count": 15 }
+    ],
+    "subscriptionStatusBreakdown": [
+      { "status": "ACTIVE", "count": 9 }
+    ]
+  }
+}
+```
+
+#### GET `/api/v1/admin/payments/transactions?page=1&limit=20`
+Combined purchase + subscription feed with pagination metadata.
+
+### 14.4 Frontend Usage Pattern
+
+```typescript
+// Review list for "My Reviews" page
+const myReviews = await api.get("/reviews/me");
+
+// Disable edit/delete buttons using permission payload
+const canEdit = myReviews.data.data[0].permissions.canEdit;
+
+// About/FAQ page content
+const [about, faq] = await Promise.all([
+  api.get("/content/about"),
+  api.get("/content/faq"),
+]);
+
+// Contact form submit
+await api.post("/content/contact", {
+  name,
+  email,
+  subject,
+  message,
+});
+
+// Admin analytics dashboard
+const dashboard = await api.get("/admin/payments/dashboard", {
+  params: { periodDays: 30 },
+});
+
+// Admin transactions table
+const tx = await api.get("/admin/payments/transactions", {
+  params: { page: 1, limit: 20 },
+});
 ```
 
 ---

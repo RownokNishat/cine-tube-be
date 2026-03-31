@@ -12,6 +12,7 @@ export type * from './models/ReviewLike';
 export type * from './models/ReviewComment';
 export type * from './models/CommentLike';
 export type * from './models/Watchlist';
+export type * from './models/ContactMessage';
 export type * from './models/Purchase';
 export type * from './models/Subscription';
 export type * from './commonInputTypes';

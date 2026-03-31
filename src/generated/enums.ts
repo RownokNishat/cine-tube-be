@@ -82,7 +82,16 @@ export const PurchaseStatus = {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED',
   FAILED: 'FAILED',
-  REFUNDED: 'REFUNDED'
+  REFUNDED: 'REFUNDED',
+  RENTAL_EXPIRED: 'RENTAL_EXPIRED'
 } as const
 
 export type PurchaseStatus = (typeof PurchaseStatus)[keyof typeof PurchaseStatus]
+
+
+export const PurchaseType = {
+  PURCHASE: 'PURCHASE',
+  RENTAL: 'RENTAL'
+} as const
+
+export type PurchaseType = (typeof PurchaseType)[keyof typeof PurchaseType]

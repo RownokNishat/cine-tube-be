@@ -65,6 +65,7 @@ export const ModelName = {
   ReviewComment: 'ReviewComment',
   CommentLike: 'CommentLike',
   Watchlist: 'Watchlist',
+  ContactMessage: 'ContactMessage',
   Purchase: 'Purchase',
   Subscription: 'Subscription'
 } as const
@@ -270,6 +271,20 @@ export const WatchlistScalarFieldEnum = {
 export type WatchlistScalarFieldEnum = (typeof WatchlistScalarFieldEnum)[keyof typeof WatchlistScalarFieldEnum]
 
 
+export const ContactMessageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  subject: 'subject',
+  message: 'message',
+  isRead: 'isRead',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContactMessageScalarFieldEnum = (typeof ContactMessageScalarFieldEnum)[keyof typeof ContactMessageScalarFieldEnum]
+
+
 export const PurchaseScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -279,6 +294,9 @@ export const PurchaseScalarFieldEnum = {
   amount: 'amount',
   currency: 'currency',
   status: 'status',
+  purchaseType: 'purchaseType',
+  rentalDays: 'rentalDays',
+  rentalExpiresAt: 'rentalExpiresAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

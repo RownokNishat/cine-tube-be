@@ -12,6 +12,11 @@ interface IUpdateReviewPayload {
     isSpoiler?: boolean;
     tags?: string[];
 }
+interface IReviewPermissions {
+    canEdit: boolean;
+    canDelete: boolean;
+    reason: string | null;
+}
 export declare const ReviewService: {
     createReview: (userId: string, mediaId: string, payload: ICreateReviewPayload) => Promise<{
         user: {
@@ -50,7 +55,28 @@ export declare const ReviewService: {
         };
     }>;
     getReviewById: (reviewId: string, currentUserId?: string) => Promise<{
+        permissions: IReviewPermissions | null;
         likedByMe: boolean;
+    }>;
+    getMyReviews: (userId: string, queryParams: IQueryParams) => Promise<{
+        data: {
+            permissions: IReviewPermissions;
+            userId: string;
+            status: ReviewStatus;
+        }[];
+        meta: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+        };
+    }>;
+    getReviewPermissions: (userId: string, reviewId: string) => Promise<{
+        canEdit: boolean;
+        canDelete: boolean;
+        reason: string | null;
+        reviewId: string;
+        status: ReviewStatus;
     }>;
     updateReview: (userId: string, reviewId: string, payload: IUpdateReviewPayload) => Promise<{
         user: {

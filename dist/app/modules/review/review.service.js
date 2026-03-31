@@ -3,6 +3,27 @@ import { ReviewStatus } from "../../../generated/enums.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
 import { QueryBuilder } from "../../utils/QueryBuilder.js";
+const getReviewPermissionsForUser = (review, userId) => {
+    if (review.userId !== userId) {
+        return {
+            canEdit: false,
+            canDelete: false,
+            reason: "You can only manage your own reviews",
+        };
+    }
+    if (review.status === ReviewStatus.PUBLISHED) {
+        return {
+            canEdit: false,
+            canDelete: false,
+            reason: "Published reviews cannot be edited or deleted by users",
+        };
+    }
+    return {
+        canEdit: true,
+        canDelete: true,
+        reason: null,
+    };
+};
 const attachLikedByMeToReviews = async (reviews, currentUserId) => {
     if (!currentUserId || reviews.length === 0) {
         return reviews.map((review) => ({ ...review, likedByMe: false }));
@@ -147,7 +168,14 @@ const getReviewById = async (reviewId, currentUserId) => {
         throw new AppError(httpStatus.NOT_FOUND, "Review not found");
     }
     const [decoratedReview] = await attachLikedByMeToReviews([review], currentUserId);
-    return decoratedReview ?? { ...review, likedByMe: false };
+    const permissions = currentUserId && review.userId === currentUserId
+        ? getReviewPermissionsForUser(review, currentUserId)
+        : null;
+    const baseReview = decoratedReview ?? { ...review, likedByMe: false };
+    return {
+        ...baseReview,
+        permissions,
+    };
 };
 const updateReview = async (userId, reviewId, payload) => {
     const review = await prisma.review.findUnique({ where: { id: reviewId } });
@@ -157,7 +185,7 @@ const updateReview = async (userId, reviewId, payload) => {
     if (review.userId !== userId) {
         throw new AppError(httpStatus.FORBIDDEN, "You can only update your own review");
     }
-    if (review.status !== ReviewStatus.PENDING) {
+    if (review.status === ReviewStatus.PUBLISHED) {
         throw new AppError(httpStatus.BAD_REQUEST, "You can only edit unpublished reviews");
     }
     if (payload.rating && (payload.rating < 1 || payload.rating > 10)) {
@@ -190,7 +218,56 @@ const deleteReview = async (userId, reviewId) => {
     if (review.userId !== userId) {
         throw new AppError(httpStatus.FORBIDDEN, "You can only delete your own review");
     }
+    if (review.status === ReviewStatus.PUBLISHED) {
+        throw new AppError(httpStatus.BAD_REQUEST, "You can only delete unpublished reviews");
+    }
     await prisma.review.delete({ where: { id: reviewId } });
+};
+const getReviewPermissions = async (userId, reviewId) => {
+    const review = await prisma.review.findUnique({ where: { id: reviewId } });
+    if (!review) {
+        throw new AppError(httpStatus.NOT_FOUND, "Review not found");
+    }
+    return {
+        reviewId,
+        status: review.status,
+        ...getReviewPermissionsForUser(review, userId),
+    };
+};
+const getMyReviews = async (userId, queryParams) => {
+    const builder = new QueryBuilder(prisma.review, queryParams, {
+        searchableFields: ["content"],
+        filterableFields: ["status", "mediaId", "rating"],
+    });
+    const result = await builder
+        .search()
+        .filter()
+        .where({ userId })
+        .sort()
+        .paginate()
+        .include({
+        media: {
+            select: {
+                id: true,
+                title: true,
+                posterUrl: true,
+                releaseYear: true,
+                mediaType: true,
+            },
+        },
+        _count: {
+            select: { likes: true, comments: true },
+        },
+    })
+        .execute();
+    const dataWithPermissions = result.data.map((review) => ({
+        ...review,
+        permissions: getReviewPermissionsForUser(review, userId),
+    }));
+    return {
+        data: dataWithPermissions,
+        meta: result.meta,
+    };
 };
 // ==================== REVIEW LIKES ====================
 const likeReview = async (userId, reviewId) => {
@@ -502,6 +579,8 @@ export const ReviewService = {
     createReview,
     getMediaReviews,
     getReviewById,
+    getMyReviews,
+    getReviewPermissions,
     updateReview,
     deleteReview,
     likeReview,

@@ -1,7 +1,7 @@
 import Stripe from "stripe";
-import { PricingType } from "../../../generated/enums.js";
+import { PricingType, SubscriptionPlan, SubscriptionStatus, PurchaseType } from "../../../generated/enums.js";
 export declare const PurchaseService: {
-    createCheckoutSession: (userId: string, mediaId: string) => Promise<{
+    createCheckoutSession: (userId: string, mediaId: string, purchaseType?: "PURCHASE" | "RENTAL", rentalDays?: number) => Promise<{
         checkoutUrl: string | null;
         sessionId: string;
     }>;
@@ -81,25 +81,87 @@ export declare const PurchaseService: {
             updatedAt: Date;
             userId: string;
             mediaId: string;
+            purchaseType: PurchaseType;
+            rentalDays: number | null;
             stripeSessionId: string;
             stripePaymentId: string | null;
             amount: number;
             currency: string;
+            rentalExpiresAt: Date | null;
         };
         debug?: never;
     }>;
-    getDashboardAnalytics: () => Promise<{
-        paymentCount: number;
-        userCount: number;
-        totalRevenue: number;
+    getDashboardAnalytics: (periodDays?: number) => Promise<{
+        overview: {
+            periodDays: number;
+            paymentCount: number;
+            userCount: number;
+            purchaseRevenue: number;
+            subscriptionRevenue: number;
+            rentalRevenue: number;
+            totalRevenue: number;
+        };
         barChartData: {
-            month: string;
+            revenue: number;
+            count: number;
+            day: string;
+        }[];
+        topMedia: {
+            mediaId: string;
+            title: string;
+            purchases: number;
+            revenue: number;
+        }[];
+        purchaseStatusBreakdown: {
+            status: import("../../../generated/enums.js").PurchaseStatus;
             count: number;
         }[];
-        pieChartData: {
-            status: string;
+        subscriptionStatusBreakdown: {
+            status: SubscriptionStatus;
             count: number;
         }[];
+    }>;
+    getPaymentTransactions: ({ page, limit }: {
+        page?: number;
+        limit?: number;
+    }) => Promise<{
+        data: ({
+            id: string;
+            type: string;
+            status: import("../../../generated/enums.js").PurchaseStatus;
+            amount: number;
+            currency: string;
+            createdAt: Date;
+            user: {
+                name: string;
+                id: string;
+                email: string;
+            };
+            media: {
+                id: string;
+                title: string;
+            };
+            purchaseType: PurchaseType;
+        } | {
+            id: string;
+            type: string;
+            status: SubscriptionStatus;
+            amount: number | null;
+            currency: string;
+            createdAt: Date;
+            user: {
+                name: string;
+                id: string;
+                email: string;
+            };
+            plan: SubscriptionPlan;
+        })[];
+        meta: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
+        };
     }>;
 };
 //# sourceMappingURL=purchase.service.d.ts.map

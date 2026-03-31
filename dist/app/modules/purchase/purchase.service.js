@@ -3,8 +3,14 @@ import { stripe } from "../../config/stripe.config.js";
 import { envVars } from "../../config/env.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
-import { PricingType, SubscriptionPlan, SubscriptionStatus } from "../../../generated/enums.js";
-const createCheckoutSession = async (userId, mediaId) => {
+import { PricingType, SubscriptionPlan, SubscriptionStatus, PurchaseType } from "../../../generated/enums.js";
+// Rental pricing configuration
+const RENTAL_PRICES = {
+    "7": 2.99, // 7-day rental
+    "30": 5.99, // 30-day rental
+};
+const RENTAL_DURATIONS = [7, 30]; // Available rental durations in days
+const createCheckoutSession = async (userId, mediaId, purchaseType = "PURCHASE", rentalDays) => {
     const media = await prisma.media.findUnique({ where: { id: mediaId } });
     if (!media) {
         throw new AppError(httpStatus.NOT_FOUND, "Media not found");
@@ -12,14 +18,33 @@ const createCheckoutSession = async (userId, mediaId) => {
     if (media.pricingType !== PricingType.PREMIUM) {
         throw new AppError(httpStatus.BAD_REQUEST, "This media is free and does not require purchase");
     }
-    // Check if user already has a completed purchase
-    const existingPurchase = await prisma.purchase.findFirst({
-        where: { userId, mediaId, status: "COMPLETED" },
-    });
-    if (existingPurchase) {
-        throw new AppError(httpStatus.CONFLICT, "You have already purchased this media");
+    // Check if user already has a completed purchase (for purchase type only)
+    if (purchaseType === "PURCHASE") {
+        const existingPurchase = await prisma.purchase.findFirst({
+            where: { userId, mediaId, status: "COMPLETED", purchaseType: "PURCHASE" },
+        });
+        if (existingPurchase) {
+            throw new AppError(httpStatus.CONFLICT, "You have already purchased this media");
+        }
     }
-    const unitAmount = Math.round((media.price ?? 9.99) * 100); // convert to cents
+    // Determine price based on purchase type
+    let amount;
+    let productName;
+    let description;
+    if (purchaseType === "RENTAL") {
+        if (!rentalDays || !RENTAL_DURATIONS.includes(rentalDays)) {
+            throw new AppError(httpStatus.BAD_REQUEST, `Invalid rental duration. Allowed: ${RENTAL_DURATIONS.join(", ")} days`);
+        }
+        amount = RENTAL_PRICES[rentalDays.toString()] ?? 3.99;
+        productName = `${media.title} (${rentalDays}-day Rental)`;
+        description = `Rent ${media.title} for ${rentalDays} days`;
+    }
+    else {
+        amount = media.price ?? 9.99;
+        productName = media.title;
+        description = media.synopsis.slice(0, 255);
+    }
+    const unitAmount = Math.round(amount * 100); // convert to cents
     const frontendUrl = envVars.FRONTEND_URL;
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
@@ -28,8 +53,8 @@ const createCheckoutSession = async (userId, mediaId) => {
                 price_data: {
                     currency: "usd",
                     product_data: {
-                        name: media.title,
-                        description: media.synopsis.slice(0, 255),
+                        name: productName,
+                        description: description,
                         images: media.posterUrl ? [media.posterUrl] : [],
                     },
                     unit_amount: unitAmount,
@@ -40,24 +65,28 @@ const createCheckoutSession = async (userId, mediaId) => {
         mode: "payment",
         success_url: `${frontendUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${frontendUrl}/media/${mediaId}`,
-        metadata: { userId, mediaId },
+        metadata: { userId, mediaId, purchaseType, rentalDays: rentalDays?.toString() || "" },
     });
-    // Upsert using userId_mediaId so re-checkout attempts after abandonment are handled
-    // cleanly — this updates the existing PENDING record with the new session ID
+    const rentalDaysValue = purchaseType === "RENTAL" ? (rentalDays ?? null) : null;
+    // Create or update purchase record
     await prisma.purchase.upsert({
         where: { userId_mediaId: { userId, mediaId } },
         create: {
             userId,
             mediaId,
             stripeSessionId: session.id,
-            amount: media.price ?? 9.99,
+            amount,
             currency: "usd",
             status: "PENDING",
+            purchaseType: purchaseType,
+            rentalDays: rentalDaysValue,
         },
         update: {
             stripeSessionId: session.id,
             status: "PENDING",
             stripePaymentId: null,
+            purchaseType: purchaseType,
+            rentalDays: rentalDaysValue,
         },
     });
     return { checkoutUrl: session.url, sessionId: session.id };
@@ -115,13 +144,26 @@ const handleWebhookEvent = async (event) => {
             }
             return;
         }
-        await prisma.purchase.updateMany({
+        // Handle purchase/rental completion
+        const purchase = await prisma.purchase.findFirst({
             where: { stripeSessionId: session.id },
-            data: {
+        });
+        if (purchase) {
+            let updateData = {
                 status: "COMPLETED",
                 stripePaymentId: session.payment_intent,
-            },
-        });
+            };
+            // If rental, set expiration date
+            if (purchase.purchaseType === "RENTAL" && purchase.rentalDays) {
+                const rentalExpiresAt = new Date();
+                rentalExpiresAt.setDate(rentalExpiresAt.getDate() + purchase.rentalDays);
+                updateData.rentalExpiresAt = rentalExpiresAt;
+            }
+            await prisma.purchase.update({
+                where: { id: purchase.id },
+                data: updateData,
+            });
+        }
     }
     if (event.type === "checkout.session.expired") {
         const session = event.data.object;
@@ -195,64 +237,169 @@ const checkAccessBySession = async (sessionId) => {
         },
     };
 };
-const getDashboardAnalytics = async () => {
-    // Get total payment count (completed purchases + active subscriptions)
-    const [completedPurchases, activeSubscriptions] = await Promise.all([
-        prisma.purchase.findMany({ where: { status: "COMPLETED" } }),
-        prisma.subscription.findMany({ where: { status: "ACTIVE" } }),
+const normalizePeriodDays = (periodDays) => {
+    const allowed = [7, 30, 90, 365];
+    return allowed.includes(periodDays) ? periodDays : 30;
+};
+const getDashboardAnalytics = async (periodDays = 30) => {
+    const normalizedPeriodDays = normalizePeriodDays(periodDays);
+    const periodStart = new Date();
+    periodStart.setDate(periodStart.getDate() - normalizedPeriodDays);
+    const [periodCompletedPurchases, periodCompletedSubscriptions, purchaseStatusCounts, subscriptionStatusCounts,] = await Promise.all([
+        prisma.purchase.findMany({
+            where: {
+                status: "COMPLETED",
+                createdAt: { gte: periodStart },
+            },
+            include: {
+                media: { select: { id: true, title: true } },
+            },
+            orderBy: { createdAt: "desc" },
+        }),
+        prisma.subscription.findMany({
+            where: {
+                status: "ACTIVE",
+                createdAt: { gte: periodStart },
+            },
+            orderBy: { createdAt: "desc" },
+        }),
+        prisma.purchase.groupBy({
+            by: ["status"],
+            _count: { status: true },
+        }),
+        prisma.subscription.groupBy({
+            by: ["status"],
+            _count: { status: true },
+        }),
     ]);
-    const paymentCount = completedPurchases.length + activeSubscriptions.length;
-    // Get distinct user count who made payments
-    const distinctUserIds = new Set();
-    completedPurchases.forEach((p) => distinctUserIds.add(p.userId));
-    activeSubscriptions.forEach((s) => distinctUserIds.add(s.userId));
-    const userCount = distinctUserIds.size;
-    // Get total revenue (sum of completed purchases + active subscription amounts)
-    const purchaseRevenue = completedPurchases.reduce((sum, p) => sum + (p.amount || 0), 0);
-    const subscriptionRevenue = activeSubscriptions.reduce((sum, s) => sum + (s.amount || 0), 0);
+    const purchaseRevenue = periodCompletedPurchases.reduce((sum, p) => sum + (p.amount || 0), 0);
+    const subscriptionRevenue = periodCompletedSubscriptions.reduce((sum, s) => sum + (s.amount || 0), 0);
+    const rentalRevenue = periodCompletedPurchases
+        .filter((purchase) => purchase.purchaseType === PurchaseType.RENTAL)
+        .reduce((sum, purchase) => sum + (purchase.amount || 0), 0);
     const totalRevenue = purchaseRevenue + subscriptionRevenue;
-    // Get bar chart data (monthly trend)
-    const allPayments = [
-        ...completedPurchases.map((p) => ({
-            date: p.createdAt,
-            type: "purchase",
-        })),
-        ...activeSubscriptions.map((s) => ({
-            date: s.createdAt,
-            type: "subscription",
-        })),
-    ].sort((a, b) => a.date.getTime() - b.date.getTime());
-    const monthlyMap = new Map();
-    allPayments.forEach((payment) => {
-        const monthKey = new Date(payment.date.getFullYear(), payment.date.getMonth(), 1).toISOString();
-        monthlyMap.set(monthKey, (monthlyMap.get(monthKey) || 0) + 1);
+    const distinctUserIds = new Set();
+    periodCompletedPurchases.forEach((purchase) => distinctUserIds.add(purchase.userId));
+    periodCompletedSubscriptions.forEach((subscription) => distinctUserIds.add(subscription.userId));
+    const dailyMap = new Map();
+    periodCompletedPurchases.forEach((purchase) => {
+        const key = purchase.createdAt.toISOString().split("T")[0];
+        const existing = dailyMap.get(key) || { revenue: 0, count: 0 };
+        dailyMap.set(key, {
+            revenue: existing.revenue + (purchase.amount || 0),
+            count: existing.count + 1,
+        });
     });
-    const barChartData = Array.from(monthlyMap.entries())
-        .map(([month, count]) => ({ month, count }))
-        .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
-    // Get pie chart data (status distribution)
-    const pieChartData = [
-        {
-            status: "COMPLETED",
-            count: completedPurchases.length,
-        },
-        {
-            status: "PENDING",
-            count: (await prisma.purchase.count({ where: { status: "PENDING" } })) +
-                (await prisma.subscription.count({ where: { status: "ACTIVE" } })),
-        },
-        {
-            status: "FAILED",
-            count: (await prisma.purchase.count({ where: { status: "FAILED" } })) +
-                (await prisma.subscription.count({ where: { status: "CANCELLED" } })),
-        },
-    ].filter((item) => item.count > 0);
+    periodCompletedSubscriptions.forEach((subscription) => {
+        const key = subscription.createdAt.toISOString().split("T")[0];
+        const existing = dailyMap.get(key) || { revenue: 0, count: 0 };
+        dailyMap.set(key, {
+            revenue: existing.revenue + (subscription.amount || 0),
+            count: existing.count + 1,
+        });
+    });
+    const barChartData = Array.from(dailyMap.entries())
+        .map(([day, value]) => ({ day, ...value }))
+        .sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
+    const mediaMap = new Map();
+    periodCompletedPurchases.forEach((purchase) => {
+        const mediaId = purchase.media.id;
+        const existing = mediaMap.get(mediaId) || {
+            mediaId,
+            title: purchase.media.title,
+            purchases: 0,
+            revenue: 0,
+        };
+        mediaMap.set(mediaId, {
+            ...existing,
+            purchases: existing.purchases + 1,
+            revenue: existing.revenue + (purchase.amount || 0),
+        });
+    });
+    const topMedia = Array.from(mediaMap.values())
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 5);
+    const purchaseStatusBreakdown = purchaseStatusCounts.map((item) => ({
+        status: item.status,
+        count: item._count.status,
+    }));
+    const subscriptionStatusBreakdown = subscriptionStatusCounts.map((item) => ({
+        status: item.status,
+        count: item._count.status,
+    }));
     return {
-        paymentCount,
-        userCount,
-        totalRevenue,
+        overview: {
+            periodDays: normalizedPeriodDays,
+            paymentCount: periodCompletedPurchases.length + periodCompletedSubscriptions.length,
+            userCount: distinctUserIds.size,
+            purchaseRevenue,
+            subscriptionRevenue,
+            rentalRevenue,
+            totalRevenue,
+        },
         barChartData,
-        pieChartData,
+        topMedia,
+        purchaseStatusBreakdown,
+        subscriptionStatusBreakdown,
+    };
+};
+const getPaymentTransactions = async ({ page = 1, limit = 20 }) => {
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const skip = (safePage - 1) * safeLimit;
+    const [purchases, subscriptions, totalPurchases, totalSubscriptions] = await Promise.all([
+        prisma.purchase.findMany({
+            skip,
+            take: safeLimit,
+            orderBy: { createdAt: "desc" },
+            include: {
+                user: { select: { id: true, name: true, email: true } },
+                media: { select: { id: true, title: true } },
+            },
+        }),
+        prisma.subscription.findMany({
+            skip,
+            take: safeLimit,
+            orderBy: { createdAt: "desc" },
+            include: {
+                user: { select: { id: true, name: true, email: true } },
+            },
+        }),
+        prisma.purchase.count(),
+        prisma.subscription.count(),
+    ]);
+    const purchaseTransactions = purchases.map((purchase) => ({
+        id: purchase.id,
+        type: "PURCHASE",
+        status: purchase.status,
+        amount: purchase.amount,
+        currency: purchase.currency,
+        createdAt: purchase.createdAt,
+        user: purchase.user,
+        media: purchase.media,
+        purchaseType: purchase.purchaseType,
+    }));
+    const subscriptionTransactions = subscriptions.map((subscription) => ({
+        id: subscription.id,
+        type: "SUBSCRIPTION",
+        status: subscription.status,
+        amount: subscription.amount,
+        currency: "usd",
+        createdAt: subscription.createdAt,
+        user: subscription.user,
+        plan: subscription.plan,
+    }));
+    const merged = [...purchaseTransactions, ...subscriptionTransactions]
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, safeLimit);
+    return {
+        data: merged,
+        meta: {
+            page: safePage,
+            limit: safeLimit,
+            total: totalPurchases + totalSubscriptions,
+            totalPages: Math.ceil((totalPurchases + totalSubscriptions) / safeLimit),
+        },
     };
 };
 export const PurchaseService = {
@@ -261,5 +408,6 @@ export const PurchaseService = {
     handleWebhookEvent,
     checkAccessBySession,
     getDashboardAnalytics,
+    getPaymentTransactions,
 };
 //# sourceMappingURL=purchase.service.js.map

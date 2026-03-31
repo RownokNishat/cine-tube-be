@@ -48,6 +48,12 @@ export declare const PurchaseStatus: {
     readonly COMPLETED: "COMPLETED";
     readonly FAILED: "FAILED";
     readonly REFUNDED: "REFUNDED";
+    readonly RENTAL_EXPIRED: "RENTAL_EXPIRED";
 };
 export type PurchaseStatus = (typeof PurchaseStatus)[keyof typeof PurchaseStatus];
+export declare const PurchaseType: {
+    readonly PURCHASE: "PURCHASE";
+    readonly RENTAL: "RENTAL";
+};
+export type PurchaseType = (typeof PurchaseType)[keyof typeof PurchaseType];
 //# sourceMappingURL=enums.d.ts.map

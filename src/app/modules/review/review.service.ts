@@ -19,6 +19,36 @@ interface IUpdateReviewPayload {
     tags?: string[];
 }
 
+interface IReviewPermissions {
+    canEdit: boolean;
+    canDelete: boolean;
+    reason: string | null;
+}
+
+const getReviewPermissionsForUser = (review: { userId: string; status: ReviewStatus }, userId: string): IReviewPermissions => {
+    if (review.userId !== userId) {
+        return {
+            canEdit: false,
+            canDelete: false,
+            reason: "You can only manage your own reviews",
+        };
+    }
+
+    if (review.status === ReviewStatus.PUBLISHED) {
+        return {
+            canEdit: false,
+            canDelete: false,
+            reason: "Published reviews cannot be edited or deleted by users",
+        };
+    }
+
+    return {
+        canEdit: true,
+        canDelete: true,
+        reason: null,
+    };
+};
+
 const attachLikedByMeToReviews = async (
     reviews: Record<string, unknown>[],
     currentUserId?: string,
@@ -203,7 +233,16 @@ const getReviewById = async (reviewId: string, currentUserId?: string) => {
         currentUserId,
     );
 
-    return decoratedReview ?? { ...(review as unknown as Record<string, unknown>), likedByMe: false };
+    const permissions =
+        currentUserId && review.userId === currentUserId
+            ? getReviewPermissionsForUser(review, currentUserId)
+            : null;
+
+    const baseReview = decoratedReview ?? { ...(review as unknown as Record<string, unknown>), likedByMe: false };
+    return {
+        ...baseReview,
+        permissions,
+    };
 };
 
 const updateReview = async (userId: string, reviewId: string, payload: IUpdateReviewPayload) => {
@@ -216,7 +255,7 @@ const updateReview = async (userId: string, reviewId: string, payload: IUpdateRe
         throw new AppError(httpStatus.FORBIDDEN, "You can only update your own review");
     }
 
-    if (review.status !== ReviewStatus.PENDING) {
+    if (review.status === ReviewStatus.PUBLISHED) {
         throw new AppError(httpStatus.BAD_REQUEST, "You can only edit unpublished reviews");
     }
 
@@ -255,7 +294,65 @@ const deleteReview = async (userId: string, reviewId: string) => {
         throw new AppError(httpStatus.FORBIDDEN, "You can only delete your own review");
     }
 
+    if (review.status === ReviewStatus.PUBLISHED) {
+        throw new AppError(httpStatus.BAD_REQUEST, "You can only delete unpublished reviews");
+    }
+
     await prisma.review.delete({ where: { id: reviewId } });
+};
+
+const getReviewPermissions = async (userId: string, reviewId: string) => {
+    const review = await prisma.review.findUnique({ where: { id: reviewId } });
+    if (!review) {
+        throw new AppError(httpStatus.NOT_FOUND, "Review not found");
+    }
+
+    return {
+        reviewId,
+        status: review.status,
+        ...getReviewPermissionsForUser(review, userId),
+    };
+};
+
+const getMyReviews = async (userId: string, queryParams: IQueryParams) => {
+    const builder = new QueryBuilder(prisma.review, queryParams, {
+        searchableFields: ["content"],
+        filterableFields: ["status", "mediaId", "rating"],
+    });
+
+    const result = await builder
+        .search()
+        .filter()
+        .where({ userId })
+        .sort()
+        .paginate()
+        .include({
+            media: {
+                select: {
+                    id: true,
+                    title: true,
+                    posterUrl: true,
+                    releaseYear: true,
+                    mediaType: true,
+                },
+            },
+            _count: {
+                select: { likes: true, comments: true },
+            },
+        })
+        .execute();
+
+    const dataWithPermissions = (result.data as Array<Record<string, unknown> & { userId: string; status: ReviewStatus }>).map(
+        (review) => ({
+            ...review,
+            permissions: getReviewPermissionsForUser(review, userId),
+        }),
+    );
+
+    return {
+        data: dataWithPermissions,
+        meta: result.meta,
+    };
 };
 
 // ==================== REVIEW LIKES ====================
@@ -631,6 +728,8 @@ export const ReviewService = {
     createReview,
     getMediaReviews,
     getReviewById,
+    getMyReviews,
+    getReviewPermissions,
     updateReview,
     deleteReview,
     likeReview,

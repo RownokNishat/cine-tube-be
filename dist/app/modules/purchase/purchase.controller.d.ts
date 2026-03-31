@@ -5,5 +5,6 @@ export declare const PurchaseController: {
     verifyPaymentSuccess: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     stripeWebhook: (req: Request, res: Response) => Promise<void>;
     getDashboardAnalytics: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    getPaymentTransactions: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
 };
 //# sourceMappingURL=purchase.controller.d.ts.map

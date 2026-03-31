@@ -12,4 +12,11 @@ router.get(
     PurchaseController.getDashboardAnalytics,
 );
 
+// GET /api/v1/admin/payments/transactions?page=1&limit=20
+router.get(
+    "/transactions",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    PurchaseController.getPaymentTransactions,
+);
+
 export const AdminPaymentRoutes = router;

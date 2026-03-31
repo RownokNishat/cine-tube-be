@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { AuthRoutes } from "../modules/auth/auth.route.js";
+import { ContentRoutes } from "../modules/content/content.route.js";
 import { GenreRoutes } from "../modules/genre/genre.route.js";
 import { MediaRoutes } from "../modules/media/media.route.js";
 import { PurchaseRoutes } from "../modules/purchase/purchase.route.js";
@@ -12,6 +13,7 @@ import { WatchlistRoutes } from "../modules/watchlist/watchlist.route.js";
 const router = Router();
 
 router.use("/auth", AuthRoutes);
+router.use("/content", ContentRoutes);
 router.use("/users", UserRoutes);
 router.use("/media", MediaRoutes);
 router.use("/media", PurchaseRoutes);
