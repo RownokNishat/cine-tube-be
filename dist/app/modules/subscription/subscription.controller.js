@@ -34,6 +34,19 @@ const createCheckoutSession = catchAsync(async (req, res) => {
         data: result,
     });
 });
+const verifyCheckoutSession = catchAsync(async (req, res) => {
+    const sessionId = String(req.query.sessionId || "");
+    if (!sessionId) {
+        throw new AppError(httpStatus.BAD_REQUEST, "sessionId is required");
+    }
+    const result = await SubscriptionService.verifyCheckoutSession(req.user.userId, sessionId);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: result.verified ? "Subscription verified successfully" : "Subscription payment is still processing",
+        data: result,
+    });
+});
 const updateSubscriptionPlan = catchAsync(async (req, res) => {
     const plan = req.params.plan;
     const result = await SubscriptionService.updateSubscriptionPlan(plan, req.body);
@@ -58,6 +71,7 @@ export const SubscriptionController = {
     updateSubscriptionPlan,
     getMySubscription,
     createCheckoutSession,
+    verifyCheckoutSession,
     cancelSubscription,
 };
 //# sourceMappingURL=subscription.controller.js.map

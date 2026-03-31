@@ -4,6 +4,7 @@ export declare const SubscriptionController: {
     updateSubscriptionPlan: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     getMySubscription: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     createCheckoutSession: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
+    verifyCheckoutSession: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
     cancelSubscription: (req: Request, res: Response, next: import("express").NextFunction) => Promise<void>;
 };
 //# sourceMappingURL=subscription.controller.d.ts.map

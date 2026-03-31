@@ -1,5 +1,5 @@
 import status from "http-status";
-import { MediaStatus, MediaType, PricingType, ReviewStatus, SubscriptionStatus } from "../../../generated/enums.js";
+import { MediaStatus, MediaType, PricingType, ReviewStatus, SubscriptionPlan, SubscriptionStatus } from "../../../generated/enums.js";
 import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../config/cloudinary.config.js";
 import AppError from "../../errorHelpers/AppError.js";
 import { IQueryParams } from "../../interfaces/query.interface.js";
@@ -451,6 +451,7 @@ const checkAccess = async (userId: string, mediaId: string) => {
     const activeSubscription = await prisma.subscription.findFirst({
         where: {
             userId,
+            plan: { in: [SubscriptionPlan.MONTHLY, SubscriptionPlan.YEARLY] },
             status: SubscriptionStatus.ACTIVE,
             endDate: { gt: now },
         },

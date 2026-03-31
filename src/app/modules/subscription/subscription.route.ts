@@ -16,6 +16,7 @@ router.patch(
 );
 router.get("/me", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), SubscriptionController.getMySubscription);
 router.post("/checkout", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), SubscriptionController.createCheckoutSession);
+router.get("/verify", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), SubscriptionController.verifyCheckoutSession);
 router.post("/cancel", checkAuth(Role.USER, Role.ADMIN, Role.SUPER_ADMIN), SubscriptionController.cancelSubscription);
 
 export const SubscriptionRoutes = router;

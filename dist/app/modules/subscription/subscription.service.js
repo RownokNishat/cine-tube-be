@@ -166,10 +166,83 @@ const createCheckoutSession = async (userId, plan) => {
             durationDays: String(config.durationDays),
             amount: String(config.price),
         },
-        success_url: `${envVars.FRONTEND_URL}/dashboard/subscriptions?success=true&session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${envVars.FRONTEND_URL}/dashboard/subscriptions?canceled=true`,
+        success_url: `${envVars.FRONTEND_URL}/dashboard/subscription?success=true&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${envVars.FRONTEND_URL}/dashboard/subscription?canceled=true`,
     });
     return { checkoutUrl: session.url, sessionId: session.id };
+};
+const verifyCheckoutSession = async (userId, sessionId) => {
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (session.metadata?.type !== "subscription") {
+        throw new AppError(httpStatus.BAD_REQUEST, "Invalid subscription checkout session");
+    }
+    if (!session.metadata?.userId || session.metadata.userId !== userId) {
+        throw new AppError(httpStatus.FORBIDDEN, "You are not allowed to verify this checkout session");
+    }
+    if (session.payment_status !== "paid") {
+        return {
+            verified: false,
+            paymentStatus: session.payment_status,
+        };
+    }
+    const paymentIntentId = typeof session.payment_intent === "string" ? session.payment_intent : null;
+    if (!paymentIntentId) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Payment intent not found for this checkout session");
+    }
+    const existing = await prisma.subscription.findFirst({
+        where: {
+            userId,
+            stripePaymentId: paymentIntentId,
+            status: SubscriptionStatus.ACTIVE,
+        },
+        orderBy: { createdAt: "desc" },
+    });
+    if (existing) {
+        return {
+            verified: true,
+            paymentStatus: session.payment_status,
+            subscription: existing,
+        };
+    }
+    const plan = session.metadata.plan;
+    if (!plan || (plan !== SubscriptionPlan.MONTHLY && plan !== SubscriptionPlan.YEARLY)) {
+        throw new AppError(httpStatus.BAD_REQUEST, "Invalid subscription plan in checkout metadata");
+    }
+    const configuredPlan = await getPlanSettingOrThrow(plan);
+    const durationDaysFromMetadata = Number(session.metadata.durationDays || "0");
+    const durationDays = durationDaysFromMetadata > 0 ? durationDaysFromMetadata : configuredPlan.durationDays;
+    const amountFromMetadata = Number(session.metadata.amount || "0");
+    const amount = amountFromMetadata > 0 ? amountFromMetadata : configuredPlan.price;
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + durationDays);
+    await prisma.subscription.updateMany({
+        where: {
+            userId,
+            status: SubscriptionStatus.ACTIVE,
+        },
+        data: {
+            status: SubscriptionStatus.EXPIRED,
+            endDate: new Date(),
+        },
+    });
+    const created = await prisma.subscription.create({
+        data: {
+            userId,
+            plan,
+            status: SubscriptionStatus.ACTIVE,
+            startDate,
+            endDate,
+            amount,
+            stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
+            stripePaymentId: paymentIntentId,
+        },
+    });
+    return {
+        verified: true,
+        paymentStatus: session.payment_status,
+        subscription: created,
+    };
 };
 const cancelSubscription = async (userId) => {
     const activeSub = await prisma.subscription.findFirst({
@@ -196,6 +269,7 @@ export const SubscriptionService = {
     updateSubscriptionPlan,
     getMySubscription,
     createCheckoutSession,
+    verifyCheckoutSession,
     cancelSubscription,
 };
 //# sourceMappingURL=subscription.service.js.map

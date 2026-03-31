@@ -53,6 +53,27 @@ export declare const SubscriptionService: {
         checkoutUrl: string | null;
         sessionId: string;
     }>;
+    verifyCheckoutSession: (userId: string, sessionId: string) => Promise<{
+        verified: boolean;
+        paymentStatus: "no_payment_required" | "unpaid";
+        subscription?: never;
+    } | {
+        verified: boolean;
+        paymentStatus: "paid";
+        subscription: {
+            status: SubscriptionStatus;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            stripePaymentId: string | null;
+            amount: number | null;
+            plan: SubscriptionPlan;
+            startDate: Date;
+            endDate: Date | null;
+            stripeCustomerId: string | null;
+        };
+    }>;
     cancelSubscription: (userId: string) => Promise<null>;
 };
 //# sourceMappingURL=subscription.service.d.ts.map
