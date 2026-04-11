@@ -37,6 +37,7 @@ export declare const ChatService: {
             name: string;
             id: string;
             email: string;
+            image: string | null;
         };
         messages: {
             id: string;
@@ -58,6 +59,7 @@ export declare const ChatService: {
             name: string;
             role: import("../../../generated/enums.js").Role;
             id: string;
+            image: string | null;
         };
     } & {
         id: string;

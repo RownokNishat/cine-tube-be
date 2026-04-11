@@ -26,7 +26,7 @@ const getAllSessions = async () => {
     const result = await prisma.chatSession.findMany({
         orderBy: { updatedAt: 'desc' },
         include: {
-            user: { select: { id: true, name: true, email: true } },
+            user: { select: { id: true, name: true, email: true, image: true } },
             messages: { orderBy: { createdAt: 'desc' }, take: 1 }
         }
     });
@@ -36,7 +36,7 @@ const getSessionMessages = async (sessionId) => {
     const result = await prisma.chatMessage.findMany({
         where: { chatSessionId: sessionId },
         orderBy: { createdAt: 'asc' },
-        include: { sender: { select: { id: true, name: true, role: true } } }
+        include: { sender: { select: { id: true, name: true, role: true, image: true } } }
     });
     return result;
 };
@@ -49,7 +49,7 @@ const sendMessage = async (senderId, payload) => {
                 content: payload.content,
                 imageUrl: payload.imageUrl
             },
-            include: { sender: { select: { id: true, name: true, role: true } } }
+            include: { sender: { select: { id: true, name: true, role: true, image: true } } }
         });
         await tx.chatSession.update({
             where: { id: payload.chatSessionId },

@@ -13,9 +13,26 @@ import { IChangePasswordPayload, ILoginUserPayload, IRegisterUserPayload } from 
 const registerUser = async (payload: IRegisterUserPayload) => {
     const { name, email, password } = payload;
 
-    const data = await auth.api.signUpEmail({
-        body: { name, email, password },
-    });
+    let data;
+    try {
+        data = await auth.api.signUpEmail({
+            body: { name, email, password },
+        });
+    } catch (error) {
+        const message = error instanceof Error ? error.message.toLowerCase() : "";
+        const isDuplicateEmailError =
+            message.includes("already") ||
+            message.includes("exists") ||
+            message.includes("duplicate") ||
+            message.includes("unique") ||
+            message.includes("email");
+
+        if (isDuplicateEmailError) {
+            throw new AppError(status.CONFLICT, "User with this email already exists");
+        }
+
+        throw error;
+    }
 
     if (!data.user) {
         throw new AppError(status.BAD_REQUEST, "Failed to register user");
