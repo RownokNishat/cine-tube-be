@@ -16,5 +16,7 @@ export type * from './models/ContactMessage';
 export type * from './models/Purchase';
 export type * from './models/Subscription';
 export type * from './models/SubscriptionPlanSetting';
+export type * from './models/ChatSession';
+export type * from './models/ChatMessage';
 export type * from './commonInputTypes';
 //# sourceMappingURL=models.d.ts.map

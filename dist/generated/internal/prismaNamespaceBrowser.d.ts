@@ -44,6 +44,8 @@ export declare const ModelName: {
     readonly Purchase: "Purchase";
     readonly Subscription: "Subscription";
     readonly SubscriptionPlanSetting: "SubscriptionPlanSetting";
+    readonly ChatSession: "ChatSession";
+    readonly ChatMessage: "ChatMessage";
 };
 export type ModelName = (typeof ModelName)[keyof typeof ModelName];
 export declare const TransactionIsolationLevel: {
@@ -251,6 +253,23 @@ export declare const SubscriptionPlanSettingScalarFieldEnum: {
     readonly updatedAt: "updatedAt";
 };
 export type SubscriptionPlanSettingScalarFieldEnum = (typeof SubscriptionPlanSettingScalarFieldEnum)[keyof typeof SubscriptionPlanSettingScalarFieldEnum];
+export declare const ChatSessionScalarFieldEnum: {
+    readonly id: "id";
+    readonly userId: "userId";
+    readonly status: "status";
+    readonly createdAt: "createdAt";
+    readonly updatedAt: "updatedAt";
+};
+export type ChatSessionScalarFieldEnum = (typeof ChatSessionScalarFieldEnum)[keyof typeof ChatSessionScalarFieldEnum];
+export declare const ChatMessageScalarFieldEnum: {
+    readonly id: "id";
+    readonly chatSessionId: "chatSessionId";
+    readonly senderId: "senderId";
+    readonly content: "content";
+    readonly imageUrl: "imageUrl";
+    readonly createdAt: "createdAt";
+};
+export type ChatMessageScalarFieldEnum = (typeof ChatMessageScalarFieldEnum)[keyof typeof ChatMessageScalarFieldEnum];
 export declare const SortOrder: {
     readonly asc: "asc";
     readonly desc: "desc";

@@ -84,7 +84,9 @@ export const ModelName = {
     ContactMessage: 'ContactMessage',
     Purchase: 'Purchase',
     Subscription: 'Subscription',
-    SubscriptionPlanSetting: 'SubscriptionPlanSetting'
+    SubscriptionPlanSetting: 'SubscriptionPlanSetting',
+    ChatSession: 'ChatSession',
+    ChatMessage: 'ChatMessage'
 };
 /**
  * Enums
@@ -274,6 +276,21 @@ export const SubscriptionPlanSettingScalarFieldEnum = {
     isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
+};
+export const ChatSessionScalarFieldEnum = {
+    id: 'id',
+    userId: 'userId',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const ChatMessageScalarFieldEnum = {
+    id: 'id',
+    chatSessionId: 'chatSessionId',
+    senderId: 'senderId',
+    content: 'content',
+    imageUrl: 'imageUrl',
+    createdAt: 'createdAt'
 };
 export const SortOrder = {
     asc: 'asc',

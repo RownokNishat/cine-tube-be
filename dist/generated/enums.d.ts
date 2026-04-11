@@ -49,6 +49,11 @@ export declare const SubscriptionStatus: {
     readonly CANCELLED: "CANCELLED";
 };
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
+export declare const ChatStatus: {
+    readonly OPEN: "OPEN";
+    readonly RESOLVED: "RESOLVED";
+};
+export type ChatStatus = (typeof ChatStatus)[keyof typeof ChatStatus];
 export declare const PurchaseStatus: {
     readonly PENDING: "PENDING";
     readonly COMPLETED: "COMPLETED";

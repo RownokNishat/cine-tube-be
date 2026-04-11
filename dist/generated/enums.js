@@ -49,6 +49,10 @@ export const SubscriptionStatus = {
     EXPIRED: 'EXPIRED',
     CANCELLED: 'CANCELLED'
 };
+export const ChatStatus = {
+    OPEN: 'OPEN',
+    RESOLVED: 'RESOLVED'
+};
 export const PurchaseStatus = {
     PENDING: 'PENDING',
     COMPLETED: 'COMPLETED',

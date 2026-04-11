@@ -313,6 +313,28 @@ export interface PrismaClient<in LogOpts extends Prisma.LogLevel = never, in out
     get subscriptionPlanSetting(): Prisma.SubscriptionPlanSettingDelegate<ExtArgs, {
         omit: OmitOpts;
     }>;
+    /**
+     * `prisma.chatSession`: Exposes CRUD operations for the **ChatSession** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more ChatSessions
+      * const chatSessions = await prisma.chatSession.findMany()
+      * ```
+      */
+    get chatSession(): Prisma.ChatSessionDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
+    /**
+     * `prisma.chatMessage`: Exposes CRUD operations for the **ChatMessage** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more ChatMessages
+      * const chatMessages = await prisma.chatMessage.findMany()
+      * ```
+      */
+    get chatMessage(): Prisma.ChatMessageDelegate<ExtArgs, {
+        omit: OmitOpts;
+    }>;
 }
 export declare function getPrismaClientClass(): PrismaClientConstructor;
 //# sourceMappingURL=class.d.ts.map

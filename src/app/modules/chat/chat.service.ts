@@ -1,5 +1,5 @@
-import { ChatStatus } from '@prisma/client';
-import prisma from '../../../shared/prisma';
+import { ChatStatus } from '../../../generated/enums.js';
+import { prisma } from '../../../lib/prisma.js';
 
 const createSession = async (userId: string) => {
     const activeSession = await prisma.chatSession.findFirst({
@@ -48,7 +48,7 @@ const getSessionMessages = async (sessionId: string) => {
 };
 
 const sendMessage = async (senderId: string, payload: { chatSessionId: string, content?: string, imageUrl?: string }) => {
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
         const message = await tx.chatMessage.create({
             data: {
                 chatSessionId: payload.chatSessionId,
