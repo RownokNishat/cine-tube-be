@@ -87,6 +87,14 @@ export const SubscriptionStatus = {
 export type SubscriptionStatus = (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus]
 
 
+export const ChatStatus = {
+  OPEN: 'OPEN',
+  RESOLVED: 'RESOLVED'
+} as const
+
+export type ChatStatus = (typeof ChatStatus)[keyof typeof ChatStatus]
+
+
 export const PurchaseStatus = {
   PENDING: 'PENDING',
   COMPLETED: 'COMPLETED',

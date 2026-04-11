@@ -443,6 +443,23 @@ export type EnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel>
 }
 
+export type EnumChatStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ChatStatus | Prisma.EnumChatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ChatStatus[] | Prisma.ListEnumChatStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ChatStatus[] | Prisma.ListEnumChatStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumChatStatusFilter<$PrismaModel> | $Enums.ChatStatus
+}
+
+export type EnumChatStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ChatStatus | Prisma.EnumChatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ChatStatus[] | Prisma.ListEnumChatStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ChatStatus[] | Prisma.ListEnumChatStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumChatStatusWithAggregatesFilter<$PrismaModel> | $Enums.ChatStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumChatStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumChatStatusFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -861,6 +878,23 @@ export type NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = neve
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSubscriptionStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumChatStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ChatStatus | Prisma.EnumChatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ChatStatus[] | Prisma.ListEnumChatStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ChatStatus[] | Prisma.ListEnumChatStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumChatStatusFilter<$PrismaModel> | $Enums.ChatStatus
+}
+
+export type NestedEnumChatStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ChatStatus | Prisma.EnumChatStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ChatStatus[] | Prisma.ListEnumChatStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ChatStatus[] | Prisma.ListEnumChatStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumChatStatusWithAggregatesFilter<$PrismaModel> | $Enums.ChatStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumChatStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumChatStatusFilter<$PrismaModel>
 }
 
 
