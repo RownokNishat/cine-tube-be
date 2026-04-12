@@ -10,6 +10,7 @@ import { SubscriptionRoutes } from "../modules/subscription/subscription.route.j
 import { UserRoutes } from "../modules/user/user.router.js";
 import { WatchlistRoutes } from "../modules/watchlist/watchlist.route.js";
 import { ChatRoutes } from "../modules/chat/chat.route.js";
+import { AiRoutes } from "../modules/ai/ai.route.js";
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use("/watchlist", WatchlistRoutes);
 router.use("/reviews", ReviewRoutes);
 router.use("/subscriptions", SubscriptionRoutes);
 router.use("/chat", ChatRoutes);
+router.use("/ai", AiRoutes);
 
 export const IndexRoutes = router;
