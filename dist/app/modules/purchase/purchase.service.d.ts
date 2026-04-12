@@ -5,38 +5,47 @@ export declare const PurchaseService: {
         checkoutUrl: string | null;
         sessionId: string;
     }>;
-    getMyPurchases: (userId: string) => Promise<{
-        id: string;
-        amount: number;
-        currency: string;
-        purchasedAt: Date;
-        media: {
-            genres: {
-                name: string;
+    getMyPurchases: (userId: string, page?: number, limit?: number) => Promise<{
+        data: {
+            id: string;
+            amount: number;
+            currency: string;
+            purchasedAt: Date;
+            createdAt: Date;
+            media: {
+                genres: {
+                    name: string;
+                    id: string;
+                    createdAt: Date;
+                    updatedAt: Date;
+                }[];
+                status: import("../../../generated/enums.js").MediaStatus;
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
-            }[];
-            status: import("../../../generated/enums.js").MediaStatus;
-            id: string;
-            createdAt: Date;
-            updatedAt: Date;
-            title: string;
-            synopsis: string;
-            releaseYear: number;
-            director: string;
-            cast: string[];
-            streamingPlatform: string[];
-            pricingType: PricingType;
-            price: number | null;
-            streamingLink: string | null;
-            posterUrl: string | null;
-            trailerUrl: string | null;
-            isFeatured: boolean;
-            isEditorPick: boolean;
-            mediaType: import("../../../generated/enums.js").MediaType;
+                title: string;
+                synopsis: string;
+                releaseYear: number;
+                director: string;
+                cast: string[];
+                streamingPlatform: string[];
+                pricingType: PricingType;
+                price: number | null;
+                streamingLink: string | null;
+                posterUrl: string | null;
+                trailerUrl: string | null;
+                isFeatured: boolean;
+                isEditorPick: boolean;
+                mediaType: import("../../../generated/enums.js").MediaType;
+            };
+        }[];
+        meta: {
+            page: number;
+            limit: number;
+            total: number;
+            totalPages: number;
         };
-    }[]>;
+    }>;
     handleWebhookEvent: (event: Stripe.Event) => Promise<void>;
     checkAccessBySession: (sessionId: string) => Promise<{
         hasAccess: boolean;

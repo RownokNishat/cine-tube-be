@@ -91,28 +91,45 @@ const createCheckoutSession = async (userId, mediaId, purchaseType = "PURCHASE",
     });
     return { checkoutUrl: session.url, sessionId: session.id };
 };
-const getMyPurchases = async (userId) => {
-    const purchases = await prisma.purchase.findMany({
-        where: { userId, status: "COMPLETED" },
-        orderBy: { createdAt: "desc" },
-        include: {
-            media: {
-                include: {
-                    genres: { include: { genre: true } },
+const getMyPurchases = async (userId, page = 1, limit = 20) => {
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const skip = (safePage - 1) * safeLimit;
+    const [purchases, total] = await Promise.all([
+        prisma.purchase.findMany({
+            where: { userId, status: "COMPLETED" },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: safeLimit,
+            include: {
+                media: {
+                    include: {
+                        genres: { include: { genre: true } },
+                    },
                 },
             },
+        }),
+        prisma.purchase.count({ where: { userId, status: "COMPLETED" } }),
+    ]);
+    return {
+        data: purchases.map((p) => ({
+            id: p.id,
+            amount: p.amount,
+            currency: p.currency,
+            purchasedAt: p.createdAt,
+            createdAt: p.createdAt,
+            media: {
+                ...p.media,
+                genres: p.media.genres.map((mg) => mg.genre),
+            },
+        })),
+        meta: {
+            page: safePage,
+            limit: safeLimit,
+            total,
+            totalPages: Math.ceil(total / safeLimit),
         },
-    });
-    return purchases.map((p) => ({
-        id: p.id,
-        amount: p.amount,
-        currency: p.currency,
-        purchasedAt: p.createdAt,
-        media: {
-            ...p.media,
-            genres: p.media.genres.map((mg) => mg.genre),
-        },
-    }));
+    };
 };
 const handleWebhookEvent = async (event) => {
     if (event.type === "checkout.session.completed") {

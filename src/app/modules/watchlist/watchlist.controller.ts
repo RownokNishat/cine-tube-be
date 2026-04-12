@@ -61,13 +61,17 @@ const removeFromWatchlist = catchAsync(async (req: Request, res: Response) => {
 
 const getMyWatchlist = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.userId;
+    const query = req.query as { page?: string; limit?: string };
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 20;
 
-    const result = await WatchlistService.getMyWatchlist(userId);
+    const result = await WatchlistService.getMyWatchlist(userId, page, limit);
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
         message: "Watchlist fetched successfully",
-        data: result,
+        data: result.data,
+        meta: result.meta,
     });
 });
 

@@ -104,10 +104,17 @@ const createCheckoutSession = async (userId: string, mediaId: string, purchaseTy
     return { checkoutUrl: session.url, sessionId: session.id };
 };
 
-const getMyPurchases = async (userId: string) => {
-    const purchases = await prisma.purchase.findMany({
+const getMyPurchases = async (userId: string, page = 1, limit = 20) => {
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const skip = (safePage - 1) * safeLimit;
+
+    const [purchases, total] = await Promise.all([
+        prisma.purchase.findMany({
         where: { userId, status: "COMPLETED" },
         orderBy: { createdAt: "desc" },
+        skip,
+        take: safeLimit,
         include: {
             media: {
                 include: {
@@ -115,18 +122,29 @@ const getMyPurchases = async (userId: string) => {
                 },
             },
         },
-    });
+    }),
+        prisma.purchase.count({ where: { userId, status: "COMPLETED" } }),
+    ]);
 
-    return purchases.map((p) => ({
-        id: p.id,
-        amount: p.amount,
-        currency: p.currency,
-        purchasedAt: p.createdAt,
-        media: {
-            ...p.media,
-            genres: p.media.genres.map((mg) => mg.genre),
+    return {
+        data: purchases.map((p) => ({
+            id: p.id,
+            amount: p.amount,
+            currency: p.currency,
+            purchasedAt: p.createdAt,
+            createdAt: p.createdAt,
+            media: {
+                ...p.media,
+                genres: p.media.genres.map((mg) => mg.genre),
+            },
+        })),
+        meta: {
+            page: safePage,
+            limit: safeLimit,
+            total,
+            totalPages: Math.ceil(total / safeLimit),
         },
-    }));
+    };
 };
 
 const handleWebhookEvent = async (event: Stripe.Event) => {

@@ -51,26 +51,45 @@ const removeFromWatchlist = async (userId, idParam) => {
     }
     await prisma.watchlist.delete({ where: { id: existing.id } });
 };
-const getMyWatchlist = async (userId) => {
-    const items = await prisma.watchlist.findMany({
-        where: { userId },
-        orderBy: { createdAt: "desc" },
-        include: {
-            media: {
-                include: {
-                    genres: { include: { genre: true } },
+const getMyWatchlist = async (userId, page = 1, limit = 20) => {
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const skip = (safePage - 1) * safeLimit;
+    const [items, total] = await Promise.all([
+        prisma.watchlist.findMany({
+            where: { userId },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: safeLimit,
+            include: {
+                media: {
+                    include: {
+                        genres: { include: { genre: true } },
+                    },
                 },
             },
+        }),
+        prisma.watchlist.count({ where: { userId } }),
+    ]);
+    return {
+        data: items.map((item) => ({
+            id: item.id,
+            userId: item.userId,
+            mediaId: item.mediaId,
+            createdAt: item.createdAt,
+            addedAt: item.createdAt,
+            media: {
+                ...item.media,
+                genres: item.media.genres.map((mg) => mg.genre),
+            },
+        })),
+        meta: {
+            page: safePage,
+            limit: safeLimit,
+            total,
+            totalPages: Math.ceil(total / safeLimit),
         },
-    });
-    return items.map((item) => ({
-        id: item.id,
-        addedAt: item.createdAt,
-        media: {
-            ...item.media,
-            genres: item.media.genres.map((mg) => mg.genre),
-        },
-    }));
+    };
 };
 const checkWatchlistStatus = async (userId, mediaId) => {
     if (!mediaId) {

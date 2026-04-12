@@ -1,6 +1,7 @@
 import httpStatus from "http-status";
 import AppError from "../../errorHelpers/AppError.js";
 import { prisma } from "../../../lib/prisma.js";
+import { IQueryResult } from "../../interfaces/query.interface.js";
 
 const addToWatchlist = async (userId: string, mediaId: string) => {
     if (!mediaId) {
@@ -63,10 +64,17 @@ const removeFromWatchlist = async (userId: string, idParam: string) => {
     await prisma.watchlist.delete({ where: { id: existing.id } });
 };
 
-const getMyWatchlist = async (userId: string) => {
-    const items = await prisma.watchlist.findMany({
+const getMyWatchlist = async (userId: string, page = 1, limit = 20): Promise<IQueryResult<Record<string, unknown>>> => {
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+    const skip = (safePage - 1) * safeLimit;
+
+    const [items, total] = await Promise.all([
+        prisma.watchlist.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
+        skip,
+        take: safeLimit,
         include: {
             media: {
                 include: {
@@ -74,16 +82,29 @@ const getMyWatchlist = async (userId: string) => {
                 },
             },
         },
-    });
+    }),
+        prisma.watchlist.count({ where: { userId } }),
+    ]);
 
-    return items.map((item) => ({
-        id: item.id,
-        addedAt: item.createdAt,
-        media: {
-            ...item.media,
-            genres: item.media.genres.map((mg) => mg.genre),
+    return {
+        data: items.map((item) => ({
+            id: item.id,
+            userId: item.userId,
+            mediaId: item.mediaId,
+            createdAt: item.createdAt,
+            addedAt: item.createdAt,
+            media: {
+                ...item.media,
+                genres: item.media.genres.map((mg) => mg.genre),
+            },
+        })),
+        meta: {
+            page: safePage,
+            limit: safeLimit,
+            total,
+            totalPages: Math.ceil(total / safeLimit),
         },
-    }));
+    };
 };
 
 const checkWatchlistStatus = async (userId: string, mediaId: string) => {

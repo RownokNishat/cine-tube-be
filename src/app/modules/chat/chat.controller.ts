@@ -18,36 +18,48 @@ const createSession = catchAsync(async (req: Request, res: Response) => {
 
 const getMySessions = catchAsync(async (req: Request, res: Response) => {
     const userId = (req as any).user?.userId;
-    const result = await ChatService.getMySessions(userId);
+    const query = req.query as { page?: string; limit?: string };
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const result = await ChatService.getMySessions(userId, page, limit);
 
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
         message: 'Chat sessions fetched successfully',
-        data: result,
+        data: result.data,
+        meta: result.meta,
     });
 });
 
 const getAllSessions = catchAsync(async (req: Request, res: Response) => {
-    const result = await ChatService.getAllSessions();
+    const query = req.query as { page?: string; limit?: string };
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const result = await ChatService.getAllSessions(page, limit);
 
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
         message: 'All chat sessions fetched successfully',
-        data: result,
+        data: result.data,
+        meta: result.meta,
     });
 });
 
 const getSessionMessages = catchAsync(async (req: Request, res: Response) => {
     const sessionId = req.params.sessionId as string;
-    const result = await ChatService.getSessionMessages(sessionId);
+    const query = req.query as { page?: string; limit?: string };
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 25;
+    const result = await ChatService.getSessionMessages(sessionId, page, limit);
 
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
         message: 'Messages fetched successfully',
-        data: result,
+        data: result.data,
+        meta: result.meta,
     });
 });
 

@@ -2,7 +2,35 @@ import status from "http-status";
 import AppError from "../../errorHelpers/AppError.js";
 import { auth } from "../../../lib/auth.js";
 import { prisma } from "../../../lib/prisma.js";
+import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../config/cloudinary.config.js";
 import { QueryBuilder } from "../../utils/QueryBuilder.js";
+const isCloudinaryUrl = (value) => Boolean(value && value.includes("cloudinary.com"));
+const resolvePersistedImage = async (incomingImage, existingImage) => {
+    if (incomingImage === undefined) {
+        return existingImage;
+    }
+    if (incomingImage === null || incomingImage === "") {
+        if (isCloudinaryUrl(existingImage)) {
+            await deleteFileFromCloudinary(existingImage);
+        }
+        return null;
+    }
+    if (!incomingImage.startsWith("data:image/")) {
+        return incomingImage;
+    }
+    const matches = incomingImage.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+    if (!matches || !matches[1] || !matches[2]) {
+        throw new AppError(status.BAD_REQUEST, "Invalid image payload");
+    }
+    const mimeType = matches[1];
+    const base64 = matches[2];
+    const extension = mimeType.split("/")[1] || "png";
+    const uploaded = await uploadFileToCloudinary(Buffer.from(base64, "base64"), `profile-image.${extension}`);
+    if (isCloudinaryUrl(existingImage)) {
+        await deleteFileFromCloudinary(existingImage);
+    }
+    return uploaded.secure_url;
+};
 const createAdmin = async (payload) => {
     const userExists = await prisma.user.findUnique({ where: { email: payload.email } });
     if (userExists) {
@@ -86,12 +114,16 @@ const updateMe = async (userId, payload) => {
     if (!user) {
         throw new AppError(status.NOT_FOUND, "User not found");
     }
+    const persistedImage = await resolvePersistedImage(payload.image, user.image);
+    const updateData = {
+        name: payload.name,
+    };
+    if (payload.image !== undefined && persistedImage !== undefined) {
+        updateData.image = persistedImage;
+    }
     const updated = await prisma.user.update({
         where: { id: userId },
-        data: {
-            name: payload.name,
-            ...(payload.image !== undefined && { image: payload.image }),
-        },
+        data: updateData,
         select: {
             id: true,
             name: true,
@@ -135,12 +167,16 @@ const updateUserProfileById = async (id, payload) => {
     if (!user) {
         throw new AppError(status.NOT_FOUND, "User not found");
     }
+    const persistedImage = await resolvePersistedImage(payload.image, user.image);
+    const updateData = {
+        name: payload.name,
+    };
+    if (payload.image !== undefined && persistedImage !== undefined) {
+        updateData.image = persistedImage;
+    }
     return await prisma.user.update({
         where: { id },
-        data: {
-            name: payload.name,
-            ...(payload.image !== undefined && { image: payload.image }),
-        },
+        data: updateData,
         select: {
             id: true,
             name: true,
@@ -162,13 +198,15 @@ const updateUserById = async (id, payload) => {
         throw new AppError(status.NOT_FOUND, "User not found");
     }
     const nextStatus = typeof payload.status === "string" ? payload.status : undefined;
+    const nextImage = typeof payload.image === "string" || payload.image === null
+        ? await resolvePersistedImage(payload.image, user.image)
+        : undefined;
     return await prisma.user.update({
         where: { id },
         data: {
             ...(typeof payload.name === "string" && { name: payload.name }),
             ...(typeof payload.email === "string" && { email: payload.email }),
-            ...(typeof payload.image === "string" && { image: payload.image }),
-            ...(payload.image === null && { image: null }),
+            ...(nextImage !== undefined && { image: nextImage }),
             ...(typeof payload.role === "string" && { role: payload.role }),
             ...(nextStatus && { status: nextStatus }),
             ...(typeof payload.needPasswordChange === "boolean" && { needPasswordChange: payload.needPasswordChange }),

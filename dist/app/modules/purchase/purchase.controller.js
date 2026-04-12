@@ -21,12 +21,16 @@ const createCheckoutSession = catchAsync(async (req, res) => {
 });
 const getMyPurchases = catchAsync(async (req, res) => {
     const userId = req.user.userId;
-    const result = await PurchaseService.getMyPurchases(userId);
+    const query = req.query;
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 20;
+    const result = await PurchaseService.getMyPurchases(userId, page, limit);
     sendResponse(res, {
         httpStatusCode: httpStatus.OK,
         success: true,
         message: "Purchases fetched successfully",
-        data: result,
+        data: result.data,
+        meta: result.meta,
     });
 });
 const verifyPaymentSuccess = catchAsync(async (req, res) => {
