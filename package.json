@@ -9,6 +9,7 @@
     "vercel-build": "prisma generate && esbuild src/index.ts --bundle --platform=node --target=node20 --format=esm --packages=external --outfile=api/index.js",
     "start": "node dist/server.js",
     "lint": "npx eslint scripts/ || true",
+    "seed:media": "tsx scripts/seed-media.ts",
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
     "studio": "prisma studio",

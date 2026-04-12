@@ -3,7 +3,7 @@ import { Role } from "../../../generated/enums.js";
 import { checkAuth } from "../../middleware/auth.js";
 import { validateRequest } from "../../middleware/validateRequest.js";
 import { ContentController } from "./content.controller.js";
-import { createContactMessageSchema } from "./content.validation.js";
+import { createContactMessageSchema, subscribeNewsletterSchema } from "./content.validation.js";
 
 const router = Router();
 
@@ -21,6 +21,14 @@ router.patch(
     "/contact-messages/:id/read",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
     ContentController.markContactMessageRead,
+);
+
+router.post("/newsletter/subscribe", validateRequest(subscribeNewsletterSchema), ContentController.subscribeNewsletter);
+
+router.get(
+    "/newsletter/subscribers",
+    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    ContentController.getNewsletterSubscribers,
 );
 
 export const ContentRoutes = router;

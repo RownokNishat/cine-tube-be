@@ -132,6 +132,11 @@ export type Subscription = Prisma.SubscriptionModel
  */
 export type SubscriptionPlanSetting = Prisma.SubscriptionPlanSettingModel
 /**
+ * Model NewsletterSubscriber
+ * 
+ */
+export type NewsletterSubscriber = Prisma.NewsletterSubscriberModel
+/**
  * Model ChatSession
  * 
  */

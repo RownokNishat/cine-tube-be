@@ -6,3 +6,7 @@ export const createContactMessageSchema = z.object({
     subject: z.string().min(3, "Subject must be at least 3 characters").max(150),
     message: z.string().min(10, "Message must be at least 10 characters").max(2000),
 });
+
+export const subscribeNewsletterSchema = z.object({
+    email: z.email("A valid email is required"),
+});

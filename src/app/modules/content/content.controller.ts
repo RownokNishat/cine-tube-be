@@ -65,10 +65,34 @@ const markContactMessageRead = catchAsync(async (req: Request, res: Response) =>
     });
 });
 
+const subscribeNewsletter = catchAsync(async (req: Request, res: Response) => {
+    const { email } = req.body as { email: string };
+    const result = await ContentService.subscribeNewsletter(email);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.CREATED,
+        success: true,
+        message: "Subscribed to newsletter successfully",
+        data: result,
+    });
+});
+
+const getNewsletterSubscribers = catchAsync(async (req: Request, res: Response) => {
+    const result = await ContentService.getNewsletterSubscribers(req.query as unknown as IQueryParams);
+    sendResponse(res, {
+        httpStatusCode: httpStatus.OK,
+        success: true,
+        message: "Newsletter subscribers fetched successfully",
+        data: result.data,
+        meta: result.meta,
+    });
+});
+
 export const ContentController = {
     getAbout,
     getFaq,
     createContactMessage,
     getContactMessages,
     markContactMessageRead,
+    subscribeNewsletter,
+    getNewsletterSubscribers,
 };

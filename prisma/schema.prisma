@@ -393,6 +393,18 @@ model SubscriptionPlanSetting {
   @@map("subscription_plan_setting")
 }
 
+// ========== NEWSLETTER ==========
+
+model NewsletterSubscriber {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("newsletter_subscriber")
+}
+
 // ========== CHAT SYSTEM ==========
 
 model ChatSession {

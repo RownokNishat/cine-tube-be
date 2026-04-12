@@ -97,10 +97,52 @@ const markContactMessageRead = async (id: string) => {
     });
 };
 
+const subscribeNewsletter = async (email: string) => {
+    const existing = await prisma.newsletterSubscriber.findUnique({ where: { email } });
+    if (existing) {
+        if (existing.isActive) {
+            throw new AppError(httpStatus.CONFLICT, "This email is already subscribed");
+        }
+        return prisma.newsletterSubscriber.update({ where: { email }, data: { isActive: true } });
+    }
+    return prisma.newsletterSubscriber.create({ data: { email } });
+};
+
+const getNewsletterSubscribers = async (queryParams: IQueryParams) => {
+    const page = Math.max(Number(queryParams.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(queryParams.limit) || 20, 1), 100);
+    const skip = (page - 1) * limit;
+    const searchTerm = typeof queryParams.searchTerm === "string" ? queryParams.searchTerm.trim() : undefined;
+
+    const where = searchTerm ? { email: { contains: searchTerm, mode: "insensitive" as const } } : {};
+
+    const [data, total] = await Promise.all([
+        prisma.newsletterSubscriber.findMany({
+            where,
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: limit,
+        }),
+        prisma.newsletterSubscriber.count({ where }),
+    ]);
+
+    return {
+        data,
+        meta: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        },
+    };
+};
+
 export const ContentService = {
     getAboutContent,
     getFaqContent,
     createContactMessage,
     getContactMessages,
     markContactMessageRead,
+    subscribeNewsletter,
+    getNewsletterSubscribers,
 };

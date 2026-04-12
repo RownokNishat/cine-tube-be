@@ -69,6 +69,7 @@ export const ModelName = {
   Purchase: 'Purchase',
   Subscription: 'Subscription',
   SubscriptionPlanSetting: 'SubscriptionPlanSetting',
+  NewsletterSubscriber: 'NewsletterSubscriber',
   ChatSession: 'ChatSession',
   ChatMessage: 'ChatMessage'
 } as const
@@ -339,6 +340,17 @@ export const SubscriptionPlanSettingScalarFieldEnum = {
 } as const
 
 export type SubscriptionPlanSettingScalarFieldEnum = (typeof SubscriptionPlanSettingScalarFieldEnum)[keyof typeof SubscriptionPlanSettingScalarFieldEnum]
+
+
+export const NewsletterSubscriberScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NewsletterSubscriberScalarFieldEnum = (typeof NewsletterSubscriberScalarFieldEnum)[keyof typeof NewsletterSubscriberScalarFieldEnum]
 
 
 export const ChatSessionScalarFieldEnum = {
