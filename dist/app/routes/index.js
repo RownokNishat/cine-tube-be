@@ -10,6 +10,10 @@ import { SubscriptionRoutes } from "../modules/subscription/subscription.route.j
 import { UserRoutes } from "../modules/user/user.router.js";
 import { WatchlistRoutes } from "../modules/watchlist/watchlist.route.js";
 import { ChatRoutes } from "../modules/chat/chat.route.js";
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+
 const router = Router();
 router.use("/auth", AuthRoutes);
 router.use("/content", ContentRoutes);

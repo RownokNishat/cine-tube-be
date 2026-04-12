@@ -21,10 +21,9 @@ function getSafeConnectionString(): string {
         );
 }
 
-// max: 1 — each Vercel function instance holds at most one connection.
-// Without this, every cold start opens a new pool and the free-tier pooler
-// hits its connection limit within seconds.
-const adapter = new PrismaPg({ connectionString: getSafeConnectionString(), max: 1 });
+// max: 3 — allow a small burst per serverless instance while still protecting
+// the Supabase free-tier transaction pooler from connection exhaustion.
+const adapter = new PrismaPg({ connectionString: getSafeConnectionString(), max: 3 });
 const prisma = new PrismaClient({ adapter });
 
 export { prisma };
